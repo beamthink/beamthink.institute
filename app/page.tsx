@@ -787,6 +787,13 @@ export default function BeamOSDashboard() {
       ],
       contributionPaths: [
         {
+          title: "Waste Reduction and Recycling Program",
+          date: new Date("2024-04-01"),
+          description: "Implement a comprehensive waste reduction and recycling program for the community.",
+        },
+      ],
+      contributionPaths: [
+        {
           name: "Solar Panel Installation",
           requiredTraining: ["Electrical Safety", "Solar Technology"],
           openings: 3,
@@ -1747,7 +1754,6 @@ export default function BeamOSDashboard() {
                 Community-driven initiatives shaping our future
               </p>
             </div>
-          </div>
           <Button variant="ghost" size="icon" className="hover:bg-gray-700 rounded-full" onClick={() => setShowProjectsModal(false)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1887,70 +1893,70 @@ export default function BeamOSDashboard() {
 
   // Advisor Chat Component
   const AdvisorChat = ({ advisor }: { advisor: AIAdvisor }) => {
-    const [audioUrl, setAudioUrl] = useState<string | null>(null)
-    const [isPlaying, setIsPlaying] = useState(false)
-    const chatContainerRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
+\
+    useEffect(() => {\
       // Scroll to the bottom of the chat container when messages change
       if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
       }
-    }, [chatMessages[advisor.id]])
+    }, [chatMessages[advisor.id]]);
 
-    const handlePlayAudio = async (message: any) => {
+    const handlePlayAudio = async (message: any) => {\
       if (isPlaying) {
         // Pause the currently playing audio
-        if (audioUrl) {
-          const audio = new Audio(audioUrl)
-          audio.pause()
+        if (audioUrl) {\
+          const audio = new Audio(audioUrl);
+          audio.pause();
         }
-        setIsPlaying(false)
-        setAudioUrl(null)
+        setIsPlaying(false);\
+        setAudioUrl(null);
       } else {
         // Play the new audio
-        try {
+        try {\
           // Fetch the audio data from the API endpoint
-          const response = await fetch(`/api/generate-audio?text=${message.content}&advisorId=${advisor.id}`)
-          if (!response.ok) {
-            throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`)
+          const response = await fetch(`/api/generate-audio?text=${message.content}&advisorId=${advisor.id}`);
+          if (!response.ok) {\
+            throw new Error(\`Failed to fetch audio: ${response.status} ${response.statusText}`);
           }
 
-          const data = await response.json()
+          const data = await response.json();
           if (data.audioUrl) {
-            setAudioUrl(data.audioUrl)
-            setIsPlaying(true)
+            setAudioUrl(data.audioUrl);\
+            setIsPlaying(true);
 
             // Play the audio
-            const audio = new Audio(data.audioUrl)
-            audio.play()
+            const audio = new Audio(data.audioUrl);
+            audio.play();
 
-            // Set isPlaying to false when audio ends
+            // Set isPlaying to false when audio ends\
             audio.onended = () => {
-              setIsPlaying(false)
-              setAudioUrl(null)
-            }
+              setIsPlaying(false);
+              setAudioUrl(null);
+            };
 
             // Handle audio errors
             audio.onerror = (error) => {
-              console.error('Audio playback error:', error)
-              setIsPlaying(false)
-              setAudioUrl(null)
-              showErrorToast('Error playing audio. Please try again.')
-            }
+              console.error('Audio playback error:', error);\
+              setIsPlaying(false);
+              setAudioUrl(null);
+              showErrorToast('Error playing audio. Please try again.');
+            };
           } else {
-            showErrorToast('Failed to generate audio. Please try again.')
+            showErrorToast(\'Failed to generate audio. Please try again.');
           }
         } catch (error: any) {
-          console.error('Error generating or playing audio:', error)
-          showErrorToast(`Error: ${error.message || 'Failed to generate audio. Please try again.'}`)
+          console.error('Error generating or playing audio:', error);
+          showErrorToast(`Error: ${error.message || \'Failed to generate audio. Please try again.'}`);\
         }
       }
-    }
+    };
 
     return (
-      <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-        <CardHeader className="flex items-center space-x-4">
+      <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">\
+        <CardHeader className="flex items-center space-x-4">\
           <Avatar>
             <AvatarImage src={advisor.avatar || "/placeholder.svg"} alt={advisor.fullName} />
             <AvatarFallback>{advisor.fullName.substring(0, 2)}</AvatarFallback>
@@ -2015,362 +2021,363 @@ export default function BeamOSDashboard() {
                 <TooltipContent>
                   <p>Send Message</p>
                 </TooltipContent>
-              </TooltipProvider>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white">
+      <TooltipProvider>
+        <div className="container mx-auto py-8 px-4">
+          {showLogo && (
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold">BEAM OS Dashboard</h1>
+              <p className="text-gray-400">Welcome to the future of community collaboration</p>
             </div>
-          </CardContent>
-        </Card>
-      )
-    }
+          )}
 
-    return (
-      <div className="min-h-screen bg-gray-950 text-white">
-        <TooltipProvider>
-          <div className="container mx-auto py-8 px-4">
-            {showLogo && (
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold">BEAM OS Dashboard</h1>
-                <p className="text-gray-400">Welcome to the future of community collaboration</p>
-              </div>
-            )}
-
-            {/* Authentication Section */}
-            <div className="flex justify-end mb-6">
-              {isLoggedIn ? (
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                    <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium leading-none">{user.name}</p>
-                    <p className="text-sm text-gray-400 leading-none">{user.role}</p>
-                  </div>
-                  <Button variant="outline" onClick={handleLogout}>
-                    Logout
-                  </Button>
+          {/* Authentication Section */}
+          <div className="flex justify-end mb-6">
+            {isLoggedIn ? (
+              <div className="flex items-center space-x-4">
+                <Avatar>
+                  <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                  <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium leading-none">{user.name}</p>
+                  <p className="text-sm text-gray-400 leading-none">{user.role}</p>
                 </div>
+                <Button variant="outline" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={handleLogin}>Login</Button>
+            )}
+          </div>
+
+          {/* Main Dashboard Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Left Sidebar - Node Selection */}
+            <div className="md:col-span-1 space-y-4">
+              <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-white">Select a Node</CardTitle>
+                  <CardDescription className="text-gray-400">Explore community initiatives</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    type="search"
+                    placeholder="Search nodes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                  <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                    {filteredNodes.length > 0 ? (
+                      filteredNodes.map((nodeKey) => (
+                        <Button
+                          key={nodeKey}
+                          variant="ghost"
+                          className={`w-full justify-start hover:bg-gray-700 rounded-md ${selectedNode === nodeKey ? "bg-gray-700" : ""}`}
+                          onClick={() => setSelectedNode(nodeKey)}
+                        >
+                          {nodeKey}
+                        </Button>
+                      ))
+                    ) : (
+                      <p className="text-gray-500">No nodes found.</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions Card */}
+              <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-white">Quick Actions</CardTitle>
+                  <CardDescription className="text-gray-400">Manage your contributions</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button variant="secondary" className="w-full" onClick={() => setShowContributionModal(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Contribute
+                  </Button>
+                  <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                  <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Main Content Area - Node Overview */}
+            <div className="md:col-span-3 space-y-6">
+              {currentNode ? (
+                <>
+                  {/* Node Header */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-white text-2xl font-bold">{selectedNode}</CardTitle>
+                        <CardDescription className="text-gray-400">
+                          {currentNode.mission}
+                          {currentPod && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm text-gray-500">{currentPod.location}</span>
+                            </div>
+                          )}
+                        </CardDescription>
+                      </div>
+                      <Button variant="secondary" onClick={() => showInfoToast("This feature is under development")}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Node
+                      </Button>
+                    </CardHeader>
+                  </Card>
+
+                  {/* Financial Overview */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Financial Overview</CardTitle>
+                      <CardDescription className="text-gray-400">Key financial metrics for this node</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Total Assets:</span>
+                            <span className="text-white">{formatCurrency(financialData.totalAssets)}</span>
+                          </div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Liquid Funds:</span>
+                            <span className="text-white">{formatCurrency(financialData.liquidFunds)}</span>
+                          </div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Property Value:</span>
+                            <span className="text-white">{formatCurrency(financialData.propertyValue)}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Equipment Value:</span>
+                            <span className="text-white">{formatCurrency(financialData.equipmentValue)}</span>
+                          </div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Potential Project Value:</span>
+                            <span className="text-white">{formatCurrency(financialData.potentialProjectValue)}</span>
+                          </div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-gray-400">Funding Goal:</span>
+                            <span className="text-white">{formatCurrency(financialData.fundingGoal)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Projects Overview */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-white">Projects Overview</CardTitle>
+                        <CardDescription className="text-gray-400">Active initiatives in this node</CardDescription>
+                      </div>
+                      <Button variant="secondary" onClick={() => setShowProjectsModal(true)}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        View All
+                      </Button>
+                    </CardHeader>
+                    <CardContent>
+                      {nodeProjects.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {nodeProjects.slice(0, 2).map((project) => (
+                            <EnhancedProjectCard key={project.id} project={project} />
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">No projects found for this node.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Participants Section */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Participants</CardTitle>
+                      <CardDescription className="text-gray-400">Key contributors to this node</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {nodeParticipants.length > 0 ? (
+                        <div className="flex items-center space-x-4 overflow-x-auto">
+                          {nodeParticipants.map((participant) => (
+                            <div key={participant.id} className="flex flex-col items-center">
+                              <Avatar>
+                                <AvatarImage src={participant.avatar || "/placeholder.svg"} alt={participant.name} />
+                                <AvatarFallback>{participant.name.substring(0, 2)}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm text-gray-400 mt-1">{participant.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500">No participants found for this node.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Access Tools Section */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Access Tools</CardTitle>
+                      <CardDescription className="text-gray-400">Resources and platforms for this node</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {currentNode.accessTools.website && (
+                        <Button variant="secondary" asChild>
+                          <a href={currentNode.accessTools.website} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Website
+                          </a>
+                        </Button>
+                      )}
+                      {currentNode.accessTools.apps?.ios && (
+                        <Button variant="secondary" asChild>
+                          <a href={currentNode.accessTools.apps.ios} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to iOS App Store")}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            iOS App
+                          </a>
+                        </Button>
+                      )}
+                      {currentNode.accessTools.apps?.android && (
+                        <Button variant="secondary" asChild>
+                          <a href={currentNode.accessTools.apps.android} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to Google Play Store")}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            Android App
+                          </a>
+                        </Button>
+                      )}
+                      {currentNode.accessTools.tools?.map((tool) => (
+                        <Button variant="secondary" key={tool.name} asChild>
+                          <a href={tool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, tool.description)}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            {tool.name}
+                          </a>
+                        </Button>
+                      ))}
+                    </CardContent>
+                  </Card>
+
+                  {/* Admin Roles Section */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Admin Roles</CardTitle>
+                      <CardDescription className="text-gray-400">Leadership and advisory positions</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type="single" collapsible className="w-full">
+                        {adminRoles.map((role, index) => (
+                          <AccordionItem key={index} value={`item-${index}`}>
+                            <AccordionTrigger className="text-white hover:bg-gray-700 rounded-md">{role.title} - {role.status}</AccordionTrigger>
+                            <AccordionContent className="text-gray-400">
+                              <p>{role.bio}</p>
+                              {role.person && <p className="mt-2">Person: {role.person}</p>}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </CardContent>
+                  </Card>
+
+                  {/* Wiki Articles Section */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Wiki Articles</CardTitle>
+                      <CardDescription className="text-gray-400">Learn more about BEAM OS</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {wikiArticles.map((article, index) => (
+                          <div key={index} className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-white font-semibold">{article.title}</h3>
+                              <p className="text-gray-400 text-sm">{article.summary}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="secondary" className="border-gray-700 text-gray-400 text-xs">{article.category}</Badge>
+                                <span className="text-muted-foreground text-xs">Last Updated: {article.lastUpdated}</span>
+                              </div>
+                            </div>
+                            <Button variant="secondary" size="sm" onClick={() => showInfoToast("Navigating to Wiki Article")}>
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              Read More
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Partners Section */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+                    <CardHeader>
+                      <CardTitle className="text-white">Partners</CardTitle>
+                      <CardDescription className="text-gray-400">Organizations supporting this node</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {partners.map((partner) => (
+                          <div key={partner.id} className="flex items-center space-x-3">
+                            <Avatar>
+                              <AvatarImage src={partner.logo || "/placeholder.svg"} alt={partner.name} />
+                              <AvatarFallback>{partner.name.substring(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-white font-medium">{partner.name}</p>
+                              <p className="text-gray-400 text-sm">{partner.type}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
               ) : (
-                <Button onClick={handleLogin}>Login</Button>
+                <div className="text-center text-gray-500">
+                  Select a node to view details.
+                </div>
               )}
             </div>
-
-            {/* Main Dashboard Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {/* Left Sidebar - Node Selection */}
-              <div className="md:col-span-1 space-y-4">
-                <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-white">Select a Node</CardTitle>
-                    <CardDescription className="text-gray-400">Explore community initiatives</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Input
-                      type="search"
-                      placeholder="Search nodes..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-gray-800 border-gray-700 text-white"
-                    />
-                    <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-                      {filteredNodes.length > 0 ? (
-                        filteredNodes.map((nodeKey) => (
-                          <Button
-                            key={nodeKey}
-                            variant="ghost"
-                            className={`w-full justify-start hover:bg-gray-700 rounded-md ${selectedNode === nodeKey ? "bg-gray-700" : ""}`}
-                            onClick={() => setSelectedNode(nodeKey)}
-                          >
-                            {nodeKey}
-                          </Button>
-                        ))
-                      ) : (
-                        <p className="text-gray-500">No nodes found.</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Quick Actions Card */}
-                <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-white">Quick Actions</CardTitle>
-                    <CardDescription className="text-gray-400">Manage your contributions</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Button variant="secondary" className="w-full" onClick={() => setShowContributionModal(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Contribute
-                    </Button>
-                    <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                    <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Main Content Area - Node Overview */}
-              <div className="md:col-span-3 space-y-6">
-                {currentNode ? (
-                  <>
-                    {/* Node Header */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-white text-2xl font-bold">{selectedNode}</CardTitle>
-                          <CardDescription className="text-gray-400">
-                            {currentNode.mission}
-                            {currentPod && (
-                              <div className="flex items-center gap-2 mt-2">
-                                <MapPin className="h-4 w-4 text-gray-500" />
-                                <span className="text-sm text-gray-500">{currentPod.location}</span>
-                              </div>
-                            )}
-                          </CardDescription>
-                        </div>
-                        <Button variant="secondary" onClick={() => showInfoToast("This feature is under development")}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Node
-                        </Button>
-                      </CardHeader>
-                    </Card>
-
-                    {/* Financial Overview */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Financial Overview</CardTitle>
-                        <CardDescription className="text-gray-400">Key financial metrics for this node</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Total Assets:</span>
-                              <span className="text-white">{formatCurrency(financialData.totalAssets)}</span>
-                            </div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Liquid Funds:</span>
-                              <span className="text-white">{formatCurrency(financialData.liquidFunds)}</span>
-                            </div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Property Value:</span>
-                              <span className="text-white">{formatCurrency(financialData.propertyValue)}</span>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Equipment Value:</span>
-                              <span className="text-white">{formatCurrency(financialData.equipmentValue)}</span>
-                            </div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Potential Project Value:</span>
-                              <span className="text-white">{formatCurrency(financialData.potentialProjectValue)}</span>
-                            </div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-gray-400">Funding Goal:</span>
-                              <span className="text-white">{formatCurrency(financialData.fundingGoal)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Projects Overview */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-white">Projects Overview</CardTitle>
-                          <CardDescription className="text-gray-400">Active initiatives in this node</CardDescription>
-                        </div>
-                        <Button variant="secondary" onClick={() => setShowProjectsModal(true)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View All
-                        </Button>
-                      </CardHeader>
-                      <CardContent>
-                        {nodeProjects.length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {nodeProjects.slice(0, 2).map((project) => (
-                              <EnhancedProjectCard key={project.id} project={project} />
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-gray-500">No projects found for this node.</p>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    {/* Participants Section */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Participants</CardTitle>
-                        <CardDescription className="text-gray-400">Key contributors to this node</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {nodeParticipants.length > 0 ? (
-                          <div className="flex items-center space-x-4 overflow-x-auto">
-                            {nodeParticipants.map((participant) => (
-                              <div key={participant.id} className="flex flex-col items-center">
-                                <Avatar>
-                                  <AvatarImage src={participant.avatar || "/placeholder.svg"} alt={participant.name} />
-                                  <AvatarFallback>{participant.name.substring(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                <span className="text-sm text-gray-400 mt-1">{participant.name}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-gray-500">No participants found for this node.</p>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    {/* Access Tools Section */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Access Tools</CardTitle>
-                        <CardDescription className="text-gray-400">Resources and platforms for this node</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {currentNode.accessTools.website && (
-                          <Button variant="secondary" asChild>
-                            <a href={currentNode.accessTools.website} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Website
-                            </a>
-                          </Button>
-                        )}
-                        {currentNode.accessTools.apps?.ios && (
-                          <Button variant="secondary" asChild>
-                            <a href={currentNode.accessTools.apps.ios} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to iOS App Store")}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              iOS App
-                            </a>
-                          </Button>
-                        )}
-                        {currentNode.accessTools.apps?.android && (
-                          <Button variant="secondary" asChild>
-                            <a href={currentNode.accessTools.apps.android} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to Google Play Store")}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Android App
-                            </a>
-                          </Button>
-                        )}
-                        {currentNode.accessTools.tools?.map((tool) => (
-                          <Button variant="secondary" key={tool.name} asChild>
-                            <a href={tool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, tool.description)}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              {tool.name}
-                            </a>
-                          </Button>
-                        ))}
-                      </CardContent>
-                    </Card>
-
-                    {/* Admin Roles Section */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Admin Roles</CardTitle>
-                        <CardDescription className="text-gray-400">Leadership and advisory positions</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <Accordion type="single" collapsible className="w-full">
-                          {adminRoles.map((role, index) => (
-                            <AccordionItem key={index} value={`item-${index}`}>
-                              <AccordionTrigger className="text-white hover:bg-gray-700 rounded-md">{role.title} - {role.status}</AccordionTrigger>
-                              <AccordionContent className="text-gray-400">
-                                <p>{role.bio}</p>
-                                {role.person && <p className="mt-2">Person: {role.person}</p>}
-                              </AccordionContent>
-                            </AccordionItem>
-                          ))}
-                        </Accordion>
-                      </CardContent>
-                    </Card>
-
-                    {/* Wiki Articles Section */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Wiki Articles</CardTitle>
-                        <CardDescription className="text-gray-400">Learn more about BEAM OS</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {wikiArticles.map((article, index) => (
-                            <div key={index} className="flex items-start justify-between">
-                              <div>
-                                <h3 className="text-white font-semibold">{article.title}</h3>
-                                <p className="text-gray-400 text-sm">{article.summary}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="secondary" className="border-gray-700 text-gray-400 text-xs">{article.category}</Badge>
-                                  <span className="text-muted-foreground text-xs">Last Updated: {article.lastUpdated}</span>
-                                </div>
-                              </div>
-                              <Button variant="secondary" size="sm" onClick={() => showInfoToast("Navigating to Wiki Article")}>
-                                <BookOpen className="w-4 h-4 mr-2" />
-                                Read More
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Partners Section */}
-                    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-white">Partners</CardTitle>
-                        <CardDescription className="text-gray-400">Organizations supporting this node</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {partners.map((partner) => (
-                            <div key={partner.id} className="flex items-center space-x-3">
-                              <Avatar>
-                                <AvatarImage src={partner.logo || "/placeholder.svg"} alt={partner.name} />
-                                <AvatarFallback>{partner.name.substring(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="text-white font-medium">{partner.name}</p>
-                                <p className="text-gray-400 text-sm">{partner.type}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </>
-                ) : (
-                  <div className="text-center text-gray-500">
-                    Select a node to view details.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* AI Advisor Chat Section */}
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4">AI Advisors</h2>
-              <p className="text-gray-400 mb-6">Connect with AI agents for expert insights and guidance.</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {aiAgents.map((advisor) => (
-                  <AdvisorChat key={advisor.id} advisor={advisor} />
-                ))}
-              </div>
-            </div>
-
-            {/* Projects Modal */}
-            {showProjectsModal && <ProjectsModal />}
-
-            {/* Contribution Modal */}
-            {showContributionModal && <ContributionModal />}
           </div>
-        </TooltipProvider>
-      </div>
-    )\
-  }
+
+          {/* AI Advisor Chat Section */}
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">AI Advisors</h2>
+            <p className="text-gray-400 mb-6">Connect with AI agents for expert insights and guidance.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {aiAgents.map((advisor) => (
+                <AdvisorChat key={advisor.id} advisor={advisor} />
+              ))}
+            </div>
+          </div>
+
+          {/* Projects Modal */}
+          {showProjectsModal && <ProjectsModal />}
+
+          {/* Contribution Modal */}
+          {showContributionModal && <ContributionModal />}
+        </div>
+      </TooltipProvider>
+    </div>
+  );\
+}
