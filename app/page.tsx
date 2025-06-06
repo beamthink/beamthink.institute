@@ -52,11 +52,11 @@ export default function BeamOSDashboard() {
   const [selectedAdvisor, setSelectedAdvisor] = useState<string | null>(null)
   const [chatMessages, setChatMessages] = useState<{
     [key: string]: Array<{
-      role: "user" | "assistant";
-      content: string;
-      timestamp: Date;
-      audioUrl?: string;
-      isPlaying?: boolean;
+      role: "user" | "assistant"
+      content: string
+      timestamp: Date
+      audioUrl?: string
+      isPlaying?: boolean
     }>
   }>({})
   const [currentMessage, setCurrentMessage] = useState("")
@@ -74,7 +74,7 @@ export default function BeamOSDashboard() {
 
   // Initialize speech recognition and synthesis
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Check for speech recognition support
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       if (SpeechRecognition) {
@@ -82,7 +82,7 @@ export default function BeamOSDashboard() {
         recognitionRef.current = new SpeechRecognition()
         recognitionRef.current.continuous = false
         recognitionRef.current.interimResults = false
-        recognitionRef.current.lang = 'en-US'
+        recognitionRef.current.lang = "en-US"
 
         recognitionRef.current.onresult = (event) => {
           const transcript = event.results[0][0].transcript
@@ -91,8 +91,8 @@ export default function BeamOSDashboard() {
         }
 
         recognitionRef.current.onerror = (event) => {
-          console.error('Speech recognition error:', event.error)
-          showErrorToast('Speech recognition error. Please try again.')
+          console.error("Speech recognition error:", event.error)
+          showErrorToast("Speech recognition error. Please try again.")
         }
 
         recognitionRef.current.onend = () => {
@@ -101,7 +101,7 @@ export default function BeamOSDashboard() {
       }
 
       // Initialize speech synthesis
-      if ('speechSynthesis' in window) {
+      if ("speechSynthesis" in window) {
         synthRef.current = window.speechSynthesis
       }
     }
@@ -115,7 +115,7 @@ export default function BeamOSDashboard() {
       volume: 0.8,
       voiceName: "female", // Will try to find a suitable female voice
       accent: "southern", // Simulated through rate and pitch adjustments
-      characteristics: "warm, thoughtful, measured"
+      characteristics: "warm, thoughtful, measured",
     },
     "james-smith": {
       rate: 1.0,
@@ -123,8 +123,8 @@ export default function BeamOSDashboard() {
       volume: 0.8,
       voiceName: "male", // Will try to find a suitable male voice
       accent: "midwest",
-      characteristics: "clear, technical, friendly"
-    }
+      characteristics: "clear, technical, friendly",
+    },
   }
 
   // Financial data for the overview
@@ -423,7 +423,8 @@ export default function BeamOSDashboard() {
       ],
       chatPersonality:
         "Dr. Haugabrooks speaks with warmth and wisdom, often drawing from her extensive experience working with communities across the American South. She asks thoughtful questions to understand the context before offering advice, and frequently references the importance of community ownership and participatory decision-making. Her responses are practical yet visionary, grounded in decades of real-world experience.",
-      voiceCharacteristics: "Warm, measured Southern accent with thoughtful pauses. Speaks with the authority of experience but maintains a nurturing, grandmother-like quality. Often emphasizes key words and uses inclusive language.",
+      voiceCharacteristics:
+        "Warm, measured Southern accent with thoughtful pauses. Speaks with the authority of experience but maintains a nurturing, grandmother-like quality. Often emphasizes key words and uses inclusive language.",
       isActive: true,
       totalContributions: 2,
       lastUpdated: new Date("2024-02-20"),
@@ -556,7 +557,8 @@ export default function BeamOSDashboard() {
       ],
       chatPersonality:
         "James speaks with the practical wisdom of someone who has spent decades implementing technology in real communities. He's curious about the specific context and always asks about community ownership and control. His responses blend technical expertise with deep understanding of community dynamics, and he often suggests starting small and building incrementally.",
-      voiceCharacteristics: "Clear Midwestern accent with a friendly, approachable tone. Speaks with technical precision but avoids jargon. Has a slight enthusiasm when discussing community empowerment through technology.",
+      voiceCharacteristics:
+        "Clear Midwestern accent with a friendly, approachable tone. Speaks with technical precision but avoids jargon. Has a slight enthusiasm when discussing community empowerment through technology.",
       isActive: true,
       totalContributions: 1,
       lastUpdated: new Date("2024-02-20"),
@@ -594,7 +596,8 @@ export default function BeamOSDashboard() {
           requiredTraining: ["Conflict Resolution", "Community Organizing"],
         },
       ],
-      eligibilityCriteria: "Open to all community members with an interest in art, urban planning, or environmental sustainability.",
+      eligibilityCriteria:
+        "Open to all community members with an interest in art, urban planning, or environmental sustainability.",
       milestones: [
         {
           title: "Community Visioning Workshop",
@@ -695,7 +698,8 @@ export default function BeamOSDashboard() {
         {
           title: "Community Technology Center",
           date: new Date("2024-01-15"),
-          description: "Establish a community technology center with computers, internet access, and technical support.",
+          description:
+            "Establish a community technology center with computers, internet access, and technical support.",
         },
       ],
       contributionPaths: [
@@ -723,7 +727,8 @@ export default function BeamOSDashboard() {
       ],
       appreciationModel: {
         method: "data_score",
-        details: "Value appreciation based on the number of community members trained and the impact of digital skills on their lives.",
+        details:
+          "Value appreciation based on the number of community members trained and the impact of digital skills on their lives.",
         currentValue: 90000,
         projectedValue: 200000,
       },
@@ -740,7 +745,8 @@ export default function BeamOSDashboard() {
     {
       id: "regenerative-core",
       title: "Regenerative Core Initiative",
-      summary: "Developing a sustainable community core through renewable energy, local food production, and waste reduction.",
+      summary:
+        "Developing a sustainable community core through renewable energy, local food production, and waste reduction.",
       description:
         "The Regenerative Core Initiative aims to create a self-sustaining community core by integrating renewable energy systems, local food production, and waste reduction strategies. This project seeks to promote environmental stewardship, enhance community resilience, and create a model for sustainable living.",
       status: "planning",
@@ -767,7 +773,8 @@ export default function BeamOSDashboard() {
           requiredTraining: ["Permaculture Design", "Organic Farming"],
         },
       ],
-      eligibilityCriteria: "Open to all community members with an interest in sustainability, renewable energy, or local food production.",
+      eligibilityCriteria:
+        "Open to all community members with an interest in sustainability, renewable energy, or local food production.",
       milestones: [
         {
           title: "Renewable Energy Feasibility Study",
@@ -779,13 +786,6 @@ export default function BeamOSDashboard() {
           date: new Date("2024-02-01"),
           description: "Design and plant a community garden to provide fresh, local produce for residents.",
         },
-        {
-          title: "Waste Reduction and Recycling Program",
-          date: new Date("2024-04-01"),
-          description: "Implement a comprehensive waste reduction and recycling program for the community.",
-        },
-      ],
-      contributionPaths: [
         {
           title: "Waste Reduction and Recycling Program",
           date: new Date("2024-04-01"),
@@ -817,7 +817,8 @@ export default function BeamOSDashboard() {
       ],
       appreciationModel: {
         method: "upgrade_cycle",
-        details: "Value appreciation based on the amount of renewable energy generated, food produced, and waste diverted.",
+        details:
+          "Value appreciation based on the amount of renewable energy generated, food produced, and waste diverted.",
         currentValue: 75000,
         projectedValue: 180000,
       },
@@ -852,7 +853,8 @@ export default function BeamOSDashboard() {
           joinedAt: new Date("2024-01-15"),
         },
       ],
-      eligibilityCriteria: "Open to all community members with an interest in gardening, local food production, or sustainable agriculture.",
+      eligibilityCriteria:
+        "Open to all community members with an interest in gardening, local food production, or sustainable agriculture.",
       milestones: [
         {
           title: "Soil Testing and Preparation",
@@ -895,7 +897,8 @@ export default function BeamOSDashboard() {
       ],
       appreciationModel: {
         method: "craftsmanship",
-        details: "Value appreciation based on the quantity and quality of produce grown and the level of community engagement.",
+        details:
+          "Value appreciation based on the quantity and quality of produce grown and the level of community engagement.",
       },
       outcomes: [
         "Increased access to fresh, healthy produce for community members",
@@ -1518,7 +1521,7 @@ export default function BeamOSDashboard() {
   // Speech Recognition Functions
   const startListening = () => {
     if (!speechSupported || !recognitionRef.current) {
-      showErrorToast('Speech recognition is not supported in your browser')
+      showErrorToast("Speech recognition is not supported in your browser")
       return
     }
 
@@ -1526,9 +1529,9 @@ export default function BeamOSDashboard() {
       setIsListening(true)
       recognitionRef.current.start()
     } catch (error) {
-      console.error('Error starting speech recognition:', error)
+      console.error("Error starting speech recognition:", error)
       setIsListening(false)
-      showErrorToast('Could not start speech recognition')
+      showErrorToast("Could not start speech recognition")
     }
   }
 
@@ -1556,9 +1559,8 @@ export default function BeamOSDashboard() {
 
       // Try to find a suitable voice
       const voices = synthRef.current.getVoices()
-      const preferredVoice = voices.find(voice =>
-        voice.name.toLowerCase().includes(profile.voiceName) ||
-        voice.lang.includes('en-US')
+      const preferredVoice = voices.find(
+        (voice) => voice.name.toLowerCase().includes(profile.voiceName) || voice.lang.includes("en-US"),
       )
 
       if (preferredVoice) {
@@ -1576,7 +1578,7 @@ export default function BeamOSDashboard() {
     }
 
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event.error)
+      console.error("Speech synthesis error:", event.error)
       setIsSpeaking(false)
       currentUtteranceRef.current = null
     }
@@ -1625,19 +1627,25 @@ export default function BeamOSDashboard() {
       // Generate contextual response based on advisor personality
       if (advisorId === "minerva-haugabrooks") {
         if (currentMessage.toLowerCase().includes("community")) {
-          aiResponseText = "You know, when I think about community development, I always come back to this fundamental truth: communities already have the solutions within them. Our job isn't to bring answers from the outside, but to help those internal solutions emerge and flourish. What specific community are you working with, and what have you noticed about their existing strengths?"
+          aiResponseText =
+            "You know, when I think about community development, I always come back to this fundamental truth: communities already have the solutions within them. Our job isn't to bring answers from the outside, but to help those internal solutions emerge and flourish. What specific community are you working with, and what have you noticed about their existing strengths?"
         } else if (currentMessage.toLowerCase().includes("project")) {
-          aiResponseText = "Every successful project I've seen starts with deep listening. Before we talk about what needs to be built or changed, we need to understand what the community values most. Have you spent time just sitting with folks, maybe in their everyday spaces, hearing their stories about what matters to them?"
+          aiResponseText =
+            "Every successful project I've seen starts with deep listening. Before we talk about what needs to be built or changed, we need to understand what the community values most. Have you spent time just sitting with folks, maybe in their everyday spaces, hearing their stories about what matters to them?"
         } else {
-          aiResponseText = "That's a thoughtful question, and it reminds me of something I learned early in my work in Alabama. The most sustainable changes happen when communities feel ownership over the process, not just the outcome. What's the context you're working in? I'd love to understand more about your situation so I can share some relevant experiences."
+          aiResponseText =
+            "That's a thoughtful question, and it reminds me of something I learned early in my work in Alabama. The most sustainable changes happen when communities feel ownership over the process, not just the outcome. What's the context you're working in? I'd love to understand more about your situation so I can share some relevant experiences."
         }
       } else if (advisorId === "james-smith") {
         if (currentMessage.toLowerCase().includes("technology") || currentMessage.toLowerCase().includes("tech")) {
-          aiResponseText = "You're touching on something I spent my whole career thinking about. Technology is never neutral - it either empowers communities or it extracts from them. The key question I always ask is: who controls the technology? Who owns the data? Who makes the decisions about how it's used? When communities have that control, technology becomes a tool for liberation rather than dependence."
+          aiResponseText =
+            "You're touching on something I spent my whole career thinking about. Technology is never neutral - it either empowers communities or it extracts from them. The key question I always ask is: who controls the technology? Who owns the data? Who makes the decisions about how it's used? When communities have that control, technology becomes a tool for liberation rather than dependence."
         } else if (currentMessage.toLowerCase().includes("community")) {
-          aiResponseText = "Community-controlled technology was my life's work, and I learned that the 'community' part is actually more important than the 'technology' part. The best tech solutions I ever implemented were the ones where the community told me what they needed, not the other way around. What specific challenges is your community facing that technology might help address?"
+          aiResponseText =
+            "Community-controlled technology was my life's work, and I learned that the 'community' part is actually more important than the 'technology' part. The best tech solutions I ever implemented were the ones where the community told me what they needed, not the other way around. What specific challenges is your community facing that technology might help address?"
         } else {
-          aiResponseText = "That's exactly the kind of question that gets to the heart of community technology work. In my experience, the most important thing is to start small and build trust. Communities have often been burned by technology promises before. What's your relationship to the community you're thinking about working with?"
+          aiResponseText =
+            "That's exactly the kind of question that gets to the heart of community technology work. In my experience, the most important thing is to start small and build trust. Communities have often been burned by technology promises before. What's your relationship to the community you're thinking about working with?"
         }
       } else {
         aiResponseText = `Thank you for your question. As ${advisor?.fullName}, I appreciate your interest in ${currentMessage.toLowerCase().includes("community") ? "community development" : "this topic"}. Based on my experience, I'd suggest starting with understanding the specific context of your community. What particular challenges or opportunities are you seeing? I find that the best solutions emerge when we truly listen to what the community is telling us.`
@@ -1670,116 +1678,138 @@ export default function BeamOSDashboard() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            {project.projectType === "Manufacturing" && <Building className="h-6 w-6 text-white" />}
-            {project.projectType === "Housing" && <Users className="h-6 w-6 text-white" />}
-            {project.projectType === "Tech" && <Brain className="h-6 w-6 text-white" />}
-            {!["Manufacturing", "Housing", "Tech"].includes(project.projectType) && (
-              <FolderOpen className="h-6 w-6 text-white" />
-            )}
-          </div>
-          <div>
-            <CardTitle className="text-white text-lg">{project.title}</CardTitle>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="outline" className="border-gray-700 text-gray-400 text-xs">
-                {project.projectType}
-              </Badge>
-              <Badge
-                variant={
-                  project.status === "active"
-                    ? "default"
+              {project.projectType === "Manufacturing" && <Building className="h-6 w-6 text-white" />}
+              {project.projectType === "Housing" && <Users className="h-6 w-6 text-white" />}
+              {project.projectType === "Tech" && <Brain className="h-6 w-6 text-white" />}
+              {!["Manufacturing", "Housing", "Tech"].includes(project.projectType) && (
+                <FolderOpen className="h-6 w-6 text-white" />
+              )}
+            </div>
+            <div>
+              <CardTitle className="text-white text-lg">{project.title}</CardTitle>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="border-gray-700 text-gray-400 text-xs">
+                  {project.projectType}
+                </Badge>
+                <Badge
+                  variant={
+                    project.status === "active"
+                      ? "default"
+                      : project.status === "planning"
+                        ? "secondary"
+                        : "destructive"
+                  }
+                  className="bg-gray-800 text-gray-300 text-xs"
+                >
+                  {project.status === "active"
+                    ? "🟢 Active"
                     : project.status === "planning"
-                      ? "secondary"
-                      : "destructive"
-                }
-                className="bg-gray-800 text-gray-300 text-xs"
-              >
-                {project.status === "active"
-                  ? "🟢 Active"
-                  : project.status === "planning"
-                    ? "🟡 Planning"
-                    : "🔴 Archived"}
-              </Badge>
-              <span className="text-muted-foreground text-xs">{project.nodeId}</span>
+                      ? "🟡 Planning"
+                      : "🔴 Archived"}
+                </Badge>
+                <span className="text-muted-foreground text-xs">{project.nodeId}</span>
+              </div>
             </div>
           </div>
+          <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
-        <ChevronRight className="h-5 w-5 text-gray-400" />
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-400 text-sm mb-4 leading-relaxed">{project.summary}</p>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Participants:</span>
+            <span className="text-white">{project.participants.length}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Open Positions:</span>
+            <span className="text-green-400">
+              {project.contributionPaths.reduce((sum, path) => sum + path.openings, 0)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">Current Value:</span>
+            <span className="text-white">{formatCurrency(project.appreciationModel.currentValue || 0)}</span>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="w-full bg-gray-800 rounded-full h-2 mb-2">
+            <div
+              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${Math.min((project.raised / project.budget) * 100, 100)}%` }}
+            />
+          </div>
+          <div className="text-xs text-gray-400">
+            {formatCurrency(project.raised)} raised of {formatCurrency(project.budget)} goal
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+
+  // Projects Modal Component
+  const ProjectsModal = () => (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+           {" "}
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+               {" "}
+        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+                   {" "}
+          <div className="flex items-center gap-3">
+                        <FolderOpen className="h-8 w-8 text-cyan-400" />           {" "}
+            <div>
+                            <h2 className="text-white text-3xl font-bold">Projects</h2>             {" "}
+              <p className="text-gray-400 text-lg">
+                                Community-driven initiatives shaping our future              {" "}
+              </p>
+                         {" "}
+            </div>
+          </div>
+                   {" "}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-gray-700 rounded-full"
+            onClick={() => setShowProjectsModal(false)}
+          >
+                       {" "}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6 text-gray-400 hover:text-gray-300 transition-colors"
+            >
+                           {" "}
+              <path
+                fillRule="evenodd"
+                d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z"
+                clipRule="evenodd"
+              />
+                         {" "}
+            </svg>
+                     {" "}
+          </Button>
+                 {" "}
+        </div>
+               {" "}
+        <div className="p-6 overflow-y-auto h-full">
+                   {" "}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                       {" "}
+            {projects.map((project) => (
+              <EnhancedProjectCard key={project.id} project={project} />
+            ))}
+                     {" "}
+          </div>
+                 {" "}
+        </div>
+             {" "}
       </div>
-    </CardHeader>
-    <CardContent>
-      <p className="text-gray-400 text-sm mb-4 leading-relaxed">{project.summary}</p>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Participants:</span>
-          <span className="text-white">{project.participants.length}</span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Open Positions:</span>
-          <span className="text-green-400">
-            {project.contributionPaths.reduce((sum, path) => sum + path.openings, 0)}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">Current Value:</span>
-          <span className="text-white">{formatCurrency(project.appreciationModel.currentValue || 0)}</span>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <div className="w-full bg-gray-800 rounded-full h-2 mb-2">
-          <div
-            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min((project.raised / project.budget) * 100, 100)}%` }}
-          />
-        </div>
-        <div className="text-xs text-gray-400">
-          {formatCurrency(project.raised)} raised of {formatCurrency(project.budget)} goal
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-)
-
-  // Projects Modal Component
-  const ProjectsModal = () => (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
-          <div className="flex items-center gap-3">
-            <FolderOpen className="h-8 w-8 text-cyan-400" />
-            <div>
-              <h2 className="text-white text-3xl font-bold">Projects</h2>
-              <p className="text-gray-400 text-lg">
-                Community-driven initiatives shaping our future
-              </p>
-            </div>
-          <Button variant="ghost" size="icon" className="hover:bg-gray-700 rounded-full" onClick={() => setShowProjectsModal(false)}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-6 h-6 text-gray-400 hover:text-gray-300 transition-colors"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Button>
-        </div>
-
-        <div className="p-6 overflow-y-auto h-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <EnhancedProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+         {" "}
+    </div>
+  )
 
   // Contribution Modal Component
   const ContributionModal = () => (
@@ -1795,7 +1825,12 @@ export default function BeamOSDashboard() {
               <p className="text-gray-400 text-sm">Share your insights and memories</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="hover:bg-gray-700 rounded-full" onClick={() => setShowContributionModal(false)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-gray-700 rounded-full"
+            onClick={() => setShowContributionModal(false)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -1814,8 +1849,12 @@ export default function BeamOSDashboard() {
         <div className="p-6 space-y-4">
           <Tabs defaultValue="details" className="space-y-4">
             <TabsList>
-              <TabsTrigger value="details" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white">Details</TabsTrigger>
-              <TabsTrigger value="preview" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white">Preview</TabsTrigger>
+              <TabsTrigger value="details" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white">
+                Details
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white">
+                Preview
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="space-y-4">
               <div>
@@ -1824,21 +1863,33 @@ export default function BeamOSDashboard() {
                   <Button
                     variant={contributionType === "memory" ? "default" : "outline"}
                     onClick={() => setContributionType("memory")}
-                    className={contributionType === "memory" ? "bg-amber-500 text-white hover:bg-amber-400" : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"}
+                    className={
+                      contributionType === "memory"
+                        ? "bg-amber-500 text-white hover:bg-amber-400"
+                        : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+                    }
                   >
                     Memory
                   </Button>
                   <Button
                     variant={contributionType === "document" ? "default" : "outline"}
                     onClick={() => setContributionType("document")}
-                    className={contributionType === "document" ? "bg-blue-500 text-white hover:bg-blue-400" : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"}
+                    className={
+                      contributionType === "document"
+                        ? "bg-blue-500 text-white hover:bg-blue-400"
+                        : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+                    }
                   >
                     Document
                   </Button>
                   <Button
                     variant={contributionType === "media" ? "default" : "outline"}
                     onClick={() => setContributionType("media")}
-                    className={contributionType === "media" ? "bg-purple-500 text-white hover:bg-purple-400" : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"}
+                    className={
+                      contributionType === "media"
+                        ? "bg-purple-500 text-white hover:bg-purple-400"
+                        : "border-gray-700 text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+                    }
                   >
                     Media
                   </Button>
@@ -1852,12 +1903,19 @@ export default function BeamOSDashboard() {
 
               <div>
                 <h3 className="text-lg font-semibold text-white">Content</h3>
-                <Textarea placeholder="Share your memory, document, or media details" className="bg-gray-800 border-gray-700 text-white mt-2" />
+                <Textarea
+                  placeholder="Share your memory, document, or media details"
+                  className="bg-gray-800 border-gray-700 text-white mt-2"
+                />
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold text-white">Tags</h3>
-                <Input type="text" placeholder="Add tags (comma separated)" className="bg-gray-800 border-gray-700 text-white mt-2" />
+                <Input
+                  type="text"
+                  placeholder="Add tags (comma separated)"
+                  className="bg-gray-800 border-gray-700 text-white mt-2"
+                />
               </div>
 
               {contributionType === "media" && (
@@ -1884,7 +1942,9 @@ export default function BeamOSDashboard() {
         </div>
 
         <div className="p-6 border-t border-gray-700 flex justify-end gap-4">
-          <Button variant="outline" onClick={() => setShowContributionModal(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setShowContributionModal(false)}>
+            Cancel
+          </Button>
           <Button>Submit Contribution</Button>
         </div>
       </div>
@@ -1893,70 +1953,70 @@ export default function BeamOSDashboard() {
 
   // Advisor Chat Component
   const AdvisorChat = ({ advisor }: { advisor: AIAdvisor }) => {
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const chatContainerRef = useRef<HTMLDivElement>(null);
-\
-    useEffect(() => {\
+    const [audioUrl, setAudioUrl] = useState<string | null>(null)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const chatContainerRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
       // Scroll to the bottom of the chat container when messages change
       if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
       }
-    }, [chatMessages[advisor.id]]);
+    }, [chatMessages[advisor.id]])
 
-    const handlePlayAudio = async (message: any) => {\
+    const handlePlayAudio = async (message: any) => {
       if (isPlaying) {
         // Pause the currently playing audio
-        if (audioUrl) {\
-          const audio = new Audio(audioUrl);
-          audio.pause();
+        if (audioUrl) {
+          const audio = new Audio(audioUrl)
+          audio.pause()
         }
-        setIsPlaying(false);\
-        setAudioUrl(null);
+        setIsPlaying(false)
+        setAudioUrl(null)
       } else {
         // Play the new audio
-        try {\
+        try {
           // Fetch the audio data from the API endpoint
-          const response = await fetch(`/api/generate-audio?text=${message.content}&advisorId=${advisor.id}`);
-          if (!response.ok) {\
-            throw new Error(\`Failed to fetch audio: ${response.status} ${response.statusText}`);
+          const response = await fetch(`/api/generate-audio?text=${message.content}&advisorId=${advisor.id}`)
+          if (!response.ok) {
+            throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`)
           }
 
-          const data = await response.json();
+          const data = await response.json()
           if (data.audioUrl) {
-            setAudioUrl(data.audioUrl);\
-            setIsPlaying(true);
+            setAudioUrl(data.audioUrl)
+            setIsPlaying(true)
 
             // Play the audio
-            const audio = new Audio(data.audioUrl);
-            audio.play();
+            const audio = new Audio(data.audioUrl)
+            audio.play()
 
-            // Set isPlaying to false when audio ends\
+            // Set isPlaying to false when audio ends
             audio.onended = () => {
-              setIsPlaying(false);
-              setAudioUrl(null);
-            };
+              setIsPlaying(false)
+              setAudioUrl(null)
+            }
 
             // Handle audio errors
             audio.onerror = (error) => {
-              console.error('Audio playback error:', error);\
-              setIsPlaying(false);
-              setAudioUrl(null);
-              showErrorToast('Error playing audio. Please try again.');
-            };
+              console.error("Audio playback error:", error)
+              setIsPlaying(false)
+              setAudioUrl(null)
+              showErrorToast("Error playing audio. Please try again.")
+            }
           } else {
-            showErrorToast(\'Failed to generate audio. Please try again.');
+            showErrorToast("Failed to generate audio. Please try again.")
           }
         } catch (error: any) {
-          console.error('Error generating or playing audio:', error);
-          showErrorToast(`Error: ${error.message || \'Failed to generate audio. Please try again.'}`);\
+          console.error("Error generating or playing audio:", error)
+          showErrorToast(`Error: ${error.message || "Failed to generate audio. Please try again."}`)
         }
       }
-    };
+    }
 
     return (
-      <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">\
-        <CardHeader className="flex items-center space-x-4">\
+      <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+        <CardHeader className="flex items-center space-x-4">
           <Avatar>
             <AvatarImage src={advisor.avatar || "/placeholder.svg"} alt={advisor.fullName} />
             <AvatarFallback>{advisor.fullName.substring(0, 2)}</AvatarFallback>
@@ -1969,7 +2029,11 @@ export default function BeamOSDashboard() {
             <Tooltip>
               <TooltipTrigger>
                 <Button variant="ghost" size="icon" onClick={toggleVoice} className="ml-auto">
-                  {voiceEnabled ? <Volume2 className="h-5 w-5 text-gray-400" /> : <VolumeX className="h-5 w-5 text-gray-400" />}
+                  {voiceEnabled ? (
+                    <Volume2 className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <VolumeX className="h-5 w-5 text-gray-400" />
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -1982,7 +2046,9 @@ export default function BeamOSDashboard() {
           <div ref={chatContainerRef} className="flex-grow overflow-y-auto space-y-2 mb-3">
             {(chatMessages[advisor.id] || []).map((message, index) => (
               <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`rounded-xl px-4 py-2 ${message.role === "user" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300"}`}>
+                <div
+                  className={`rounded-xl px-4 py-2 ${message.role === "user" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300"}`}
+                >
                   <p className="text-sm">{message.content}</p>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-xs text-gray-500">{message.timestamp.toLocaleTimeString()}</span>
@@ -2026,8 +2092,8 @@ export default function BeamOSDashboard() {
           </div>
         </CardContent>
       </Card>
-    );
-  };
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -2245,7 +2311,12 @@ export default function BeamOSDashboard() {
                     <CardContent className="space-y-3">
                       {currentNode.accessTools.website && (
                         <Button variant="secondary" asChild>
-                          <a href={currentNode.accessTools.website} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}>
+                          <a
+                            href={currentNode.accessTools.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Website
                           </a>
@@ -2253,7 +2324,12 @@ export default function BeamOSDashboard() {
                       )}
                       {currentNode.accessTools.apps?.ios && (
                         <Button variant="secondary" asChild>
-                          <a href={currentNode.accessTools.apps.ios} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to iOS App Store")}>
+                          <a
+                            href={currentNode.accessTools.apps.ios}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => handlePlaceholderClick(e, "Navigating to iOS App Store")}
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             iOS App
                           </a>
@@ -2261,7 +2337,12 @@ export default function BeamOSDashboard() {
                       )}
                       {currentNode.accessTools.apps?.android && (
                         <Button variant="secondary" asChild>
-                          <a href={currentNode.accessTools.apps.android} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, "Navigating to Google Play Store")}>
+                          <a
+                            href={currentNode.accessTools.apps.android}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => handlePlaceholderClick(e, "Navigating to Google Play Store")}
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             Android App
                           </a>
@@ -2269,7 +2350,12 @@ export default function BeamOSDashboard() {
                       )}
                       {currentNode.accessTools.tools?.map((tool) => (
                         <Button variant="secondary" key={tool.name} asChild>
-                          <a href={tool.url} target="_blank" rel="noopener noreferrer" onClick={(e) => handlePlaceholderClick(e, tool.description)}>
+                          <a
+                            href={tool.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => handlePlaceholderClick(e, tool.description)}
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             {tool.name}
                           </a>
@@ -2288,7 +2374,9 @@ export default function BeamOSDashboard() {
                       <Accordion type="single" collapsible className="w-full">
                         {adminRoles.map((role, index) => (
                           <AccordionItem key={index} value={`item-${index}`}>
-                            <AccordionTrigger className="text-white hover:bg-gray-700 rounded-md">{role.title} - {role.status}</AccordionTrigger>
+                            <AccordionTrigger className="text-white hover:bg-gray-700 rounded-md">
+                              {role.title} - {role.status}
+                            </AccordionTrigger>
                             <AccordionContent className="text-gray-400">
                               <p>{role.bio}</p>
                               {role.person && <p className="mt-2">Person: {role.person}</p>}
@@ -2313,11 +2401,19 @@ export default function BeamOSDashboard() {
                               <h3 className="text-white font-semibold">{article.title}</h3>
                               <p className="text-gray-400 text-sm">{article.summary}</p>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="border-gray-700 text-gray-400 text-xs">{article.category}</Badge>
-                                <span className="text-muted-foreground text-xs">Last Updated: {article.lastUpdated}</span>
+                                <Badge variant="secondary" className="border-gray-700 text-gray-400 text-xs">
+                                  {article.category}
+                                </Badge>
+                                <span className="text-muted-foreground text-xs">
+                                  Last Updated: {article.lastUpdated}
+                                </span>
                               </div>
                             </div>
-                            <Button variant="secondary" size="sm" onClick={() => showInfoToast("Navigating to Wiki Article")}>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => showInfoToast("Navigating to Wiki Article")}
+                            >
                               <BookOpen className="w-4 h-4 mr-2" />
                               Read More
                             </Button>
@@ -2352,9 +2448,7 @@ export default function BeamOSDashboard() {
                   </Card>
                 </>
               ) : (
-                <div className="text-center text-gray-500">
-                  Select a node to view details.
-                </div>
+                <div className="text-center text-gray-500">Select a node to view details.</div>
               )}
             </div>
           </div>
@@ -2379,5 +2473,5 @@ export default function BeamOSDashboard() {
         </div>
       </TooltipProvider>
     </div>
-  );\
+  )
 }
