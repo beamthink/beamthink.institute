@@ -13,7 +13,7 @@ export const supabaseAdmin = createClient(supabaseUrl, process.env.SUPABASE_SERV
   },
 })
 
-// Database Types (you can generate these with Supabase CLI)
+// Database Types (updated to match the fixed schema)
 export interface Database {
   public: {
     Tables: {
@@ -96,8 +96,8 @@ export interface Database {
           role: string
           bio: string
           detailed_bio: string
-          avatar: string
-          specialties: string[]
+          avatar: string | null
+          specialties: string[] // Fixed: Now properly typed as string array
           is_active: boolean
           created_at: string
           updated_at: string
@@ -110,7 +110,7 @@ export interface Database {
           role: string
           bio: string
           detailed_bio: string
-          avatar: string
+          avatar?: string | null
           specialties: string[]
           is_active?: boolean
           created_at?: string
@@ -124,7 +124,7 @@ export interface Database {
           role?: string
           bio?: string
           detailed_bio?: string
-          avatar?: string
+          avatar?: string | null
           specialties?: string[]
           is_active?: boolean
           updated_at?: string
