@@ -9,7 +9,6 @@ import {
   Brain,
   FolderOpen,
   MapPin,
-  Eye,
   Edit,
   Settings,
   BookOpen,
@@ -23,6 +22,8 @@ import {
   VolumeX,
   Pause,
 } from "lucide-react"
+import { Eye } from "lucide-react"
+import Link from "next/link"
 // Ensure these shadcn/ui components are correctly added via `npx shadcn-ui@latest add <component>`
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -1452,53 +1453,29 @@ export default function BeamOSDashboard() {
   // Authentication functions
   const handleLogin = () => {
     setIsLoggedIn(true)
-    toast({
-      description: `Welcome back, ${user.name}!`,
-      duration: 3000,
-      className: "bg-gray-900/70 border border-gray-700/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast(`Welcome back, ${user.name}!`)
   }
 
   const handleLogout = () => {
     setIsLoggedIn(false)
-    toast({
-      description: "You have been successfully logged out",
-      duration: 3000,
-      className: "bg-gray-900/70 border border-gray-700/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast("You have been successfully logged out")
   }
 
   // Toast notification functions
   const showSuccessToast = (message: string) => {
-    toast({
-      description: message,
-      duration: 3000,
-      className: "bg-gray-900/70 border border-green-500/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast.success(message)
   }
 
   const showErrorToast = (message: string) => {
-    toast({
-      description: message,
-      duration: 5000,
-      className: "bg-gray-900/70 border border-red-500/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast.error(message)
   }
 
   const showInfoToast = (message: string) => {
-    toast({
-      description: message,
-      duration: 4000,
-      className: "bg-gray-900/70 border border-blue-500/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast.info(message)
   }
 
   const showLoginRequiredToast = () => {
-    toast({
-      description: "Please log in to access this feature",
-      duration: 4000,
-      className: "bg-gray-900/70 border border-amber-500/30 text-white shadow-lg backdrop-blur-md rounded-lg",
-    })
+    toast.warning("Please log in to access this feature")
   }
 
   // Prevent default link behavior for placeholder links
@@ -2021,26 +1998,42 @@ export default function BeamOSDashboard() {
             <AvatarImage src={advisor.avatar || "/placeholder.svg"} alt={advisor.fullName} />
             <AvatarFallback>{advisor.fullName.substring(0, 2)}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="flex-grow">
             <CardTitle className="text-white">{advisor.fullName}</CardTitle>
             <CardDescription className="text-gray-400">{advisor.role}</CardDescription>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Button variant="ghost" size="icon" onClick={toggleVoice} className="ml-auto">
-                  {voiceEnabled ? (
-                    <Volume2 className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <VolumeX className="h-5 w-5 text-gray-400" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{voiceEnabled ? "Disable Voice" : "Enable Voice"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/advisors/${advisor.slug}`}>
+                      <Eye className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Visit Memorial</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon" onClick={toggleVoice}>
+                    {voiceEnabled ? (
+                      <Volume2 className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <VolumeX className="h-5 w-5 text-gray-400" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{voiceEnabled ? "Disable Voice" : "Enable Voice"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </CardHeader>
         <CardContent className="h-[400px] flex flex-col">
           <div ref={chatContainerRef} className="flex-grow overflow-y-auto space-y-2 mb-3">

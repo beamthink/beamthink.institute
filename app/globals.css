@@ -67,3 +67,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom toast styles with glassy effect */
+.glass-toast {
+  background: rgba(17, 24, 39, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(75, 85, 99, 0.3) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Success toast */
+[data-type="success"] .glass-toast {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+/* Error toast */
+[data-type="error"] .glass-toast {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Info toast */
+[data-type="info"] .glass-toast {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Warning toast */
+[data-type="warning"] .glass-toast {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
