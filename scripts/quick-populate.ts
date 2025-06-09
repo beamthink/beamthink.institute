@@ -8,9 +8,9 @@ console.log("🚀 Quick Populate Advisors...\n")
 const advisorData = [
   {
     slug: "minerva-haugabrooks",
-    full_name: "Dr. Minerva Haugabrooks",
+    full_name: "Dr. Minerva Minny Haugabrooks",
     role: "Community Development Strategist",
-    bio: "AI agent specializing in community development, urban planning, and social impact assessment. Provides strategic insights for sustainable community initiatives.",
+    bio: "AI agent Minny specializing in community development, urban planning, and social impact assessment. Provides strategic insights for sustainable community initiatives.",
     detailed_bio: `Dr. Minerva Haugabrooks was a pioneering community development strategist whose work fundamentally shaped how we understand the intersection of urban planning, social justice, and economic empowerment. Born in 1945 in rural Alabama, she witnessed firsthand the challenges facing underserved communities and dedicated her life to developing innovative, community-centered solutions.
 
 Her groundbreaking research on "Participatory Economic Development" introduced frameworks that prioritized community ownership and decision-making in development projects. Dr. Haugabrooks believed that sustainable change could only come from within communities themselves, with external support serving as a catalyst rather than a driving force.
