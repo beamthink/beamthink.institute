@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
-import { sanityClient } from "@/lib/sanity"
 import { supabase } from "@/lib/supabase"
 import AdvisorMemorial from "@/components/advisor-memorial"
 
@@ -10,96 +9,31 @@ interface AdvisorPageProps {
   }
 }
 
-// Fetch advisor data from both Supabase and Sanity
+// Simplified data fetching - just use Supabase for now
 async function getAdvisorData(slug: string) {
   try {
     console.log("🔍 Fetching advisor data for slug:", slug)
 
-    // Get basic data from Supabase
-    const { data: supabaseAdvisor, error } = await supabase.from("ai_advisors").select("*").eq("slug", slug).single()
+    // Get data from Supabase only
+    const { data: advisor, error } = await supabase.from("ai_advisors").select("*").eq("slug", slug).single()
 
-    console.log("📊 Supabase query result:", { data: supabaseAdvisor, error })
+    console.log("📊 Supabase query result:", { data: advisor, error })
 
     if (error) {
       console.error("❌ Supabase error:", error)
       return null
     }
 
-    if (!supabaseAdvisor) {
+    if (!advisor) {
       console.error("❌ No advisor found with slug:", slug)
       return null
     }
 
-    console.log("✅ Found advisor in Supabase:", supabaseAdvisor.full_name)
-
-    // Get rich content from Sanity using the linked person ID
-    let sanityPerson = null
-    if (supabaseAdvisor.sanity_person_id) {
-      // Check if Sanity is properly configured
-      const hasValidSanityConfig =
-        process.env.NEXT_PUBLIC_SANITY_PROJECT_ID && process.env.NEXT_PUBLIC_SANITY_PROJECT_ID !== "placeholder-project"
-
-      console.log("🎨 Sanity config check:", {
-        projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-        hasValidConfig: hasValidSanityConfig,
-        personId: supabaseAdvisor.sanity_person_id,
-      })
-
-      if (hasValidSanityConfig) {
-        try {
-          sanityPerson = await sanityClient.fetch(
-            `*[_type == "person" && _id == $personId][0]{
-              _id,
-              fullName,
-              detailedBio,
-              birthYear,
-              deathYear,
-              specialties,
-              keyWorks,
-              quotes,
-              timeline,
-              media[]{
-                _key,
-                title,
-                description,
-                type,
-                asset->{
-                  _id,
-                  url,
-                  metadata
-                }
-              },
-              contributions[]{
-                _key,
-                type,
-                title,
-                content,
-                contributorName,
-                contributorEmail,
-                submittedAt,
-                approved,
-                tags
-              },
-              chatPersonality,
-              voiceCharacteristics
-            }`,
-            { personId: supabaseAdvisor.sanity_person_id },
-          )
-          console.log("✅ Sanity data fetched:", sanityPerson ? "Found" : "Not found")
-        } catch (sanityError) {
-          console.error("❌ Sanity fetch error:", sanityError)
-          // Continue with null sanityPerson
-        }
-      } else {
-        console.warn("⚠️  Sanity not configured - using basic data only")
-      }
-    } else {
-      console.warn("⚠️  No sanity_person_id set for this advisor")
-    }
+    console.log("✅ Found advisor in Supabase:", advisor.full_name)
 
     return {
-      basic: supabaseAdvisor,
-      detailed: sanityPerson,
+      basic: advisor,
+      detailed: null, // We'll add Sanity data later
     }
   } catch (error) {
     console.error("❌ Error fetching advisor data:", error)
@@ -141,19 +75,13 @@ export default async function AdvisorPage({ params }: AdvisorPageProps) {
   return <AdvisorMemorial advisorData={advisorData} />
 }
 
-// Generate static params for known advisors
+// Static generation for known advisors
 export async function generateStaticParams() {
   try {
-    const { data: advisors } = await supabase.from("ai_advisors").select("slug").eq("is_active", true)
+    console.log("📋 Generating static params...")
 
-    console.log(
-      "📋 Generated static params for advisors:",
-      advisors?.map((a) => a.slug),
-    )
-
-    return (advisors || []).map((advisor) => ({
-      slug: advisor.slug,
-    }))
+    // Return known advisor slugs for static generation
+    return [{ slug: "minerva-haugabrooks" }, { slug: "james-smith" }]
   } catch (error) {
     console.error("❌ Error generating static params:", error)
     return []
