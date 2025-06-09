@@ -9,7 +9,7 @@ interface AdvisorPageProps {
   }
 }
 
-// Simplified data fetching - just use Supabase for now
+// Simplified data fetching with better error handling
 async function getAdvisorData(slug: string) {
   try {
     console.log("🔍 Fetching advisor data for slug:", slug)
@@ -21,6 +21,34 @@ async function getAdvisorData(slug: string) {
 
     if (error) {
       console.error("❌ Supabase error:", error)
+
+      // If it's a "not found" error, return null
+      if (error.code === "PGRST116") {
+        return null
+      }
+
+      // For other errors, try to provide fallback data
+      if (slug === "minerva-haugabrooks") {
+        return {
+          basic: {
+            id: "fallback-minerva",
+            slug: "minerva-haugabrooks",
+            full_name: "Dr. Minerva Haugabrooks",
+            role: "Community Development Strategist",
+            bio: "AI agent specializing in community development, urban planning, and social impact assessment.",
+            detailed_bio:
+              "Dr. Minerva Haugabrooks was a pioneering community development strategist whose work fundamentally shaped how we understand the intersection of urban planning, social justice, and economic empowerment.",
+            avatar: null,
+            specialties: ["Community Development", "Urban Planning", "Cooperative Economics"],
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            sanity_person_id: null,
+          },
+          detailed: null,
+        }
+      }
+
       return null
     }
 
@@ -31,8 +59,14 @@ async function getAdvisorData(slug: string) {
 
     console.log("✅ Found advisor in Supabase:", advisor.full_name)
 
+    // Ensure avatar is safe
+    const safeAdvisor = {
+      ...advisor,
+      avatar: advisor.avatar?.startsWith("http") ? advisor.avatar : null,
+    }
+
     return {
-      basic: advisor,
+      basic: safeAdvisor,
       detailed: null, // We'll add Sanity data later
     }
   } catch (error) {

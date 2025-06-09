@@ -1,49 +1,41 @@
-"use client"
-
-import { useState } from "react"
+// Safe version of the memorial page with no external dependencies
 import Link from "next/link"
-import { ArrowLeft, Calendar, Quote, FileText, ExternalLink, MessageCircle } from "lucide-react"
+import { ArrowLeft, Calendar, Quote, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-interface AdvisorMemorialProps {
-  advisorData: {
-    basic: {
-      id: string
-      slug: string
-      full_name: string
-      role: string
-      bio: string
-      detailed_bio: string
-      avatar: string | null
-      specialties: string[]
-      is_active: boolean
-      created_at: string
-      updated_at: string
-      sanity_person_id?: string | null
-    }
-    detailed?: any // Sanity data (optional for now)
+export default function SafeMinervaPage() {
+  const advisor = {
+    full_name: "Dr. Minerva Haugabrooks",
+    role: "Community Development Strategist",
+    bio: "AI agent specializing in community development, urban planning, and social impact assessment. Provides strategic insights for sustainable community initiatives.",
+    detailed_bio: `Dr. Minerva Haugabrooks was a pioneering community development strategist whose work fundamentally shaped how we understand the intersection of urban planning, social justice, and economic empowerment. Born in 1945 in rural Alabama, she witnessed firsthand the challenges facing underserved communities and dedicated her life to developing innovative, community-centered solutions.
+
+Her groundbreaking research on "Participatory Economic Development" introduced frameworks that prioritized community ownership and decision-making in development projects. Dr. Haugabrooks believed that sustainable change could only come from within communities themselves, with external support serving as a catalyst rather than a driving force.
+
+Throughout her 40-year career, she advised on over 200 community development projects across the American South, establishing cooperative businesses, community land trusts, and participatory budgeting initiatives that continue to thrive today.`,
+    specialties: [
+      "Community Development",
+      "Urban Planning",
+      "Cooperative Economics",
+      "Social Impact Assessment",
+      "Participatory Democracy",
+      "Community Land Trusts",
+    ],
+    slug: "minerva-haugabrooks",
   }
-}
 
-export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
-  const { basic, detailed } = advisorData
-  const [activeTab, setActiveTab] = useState("overview")
-
-  // Mock data for demonstration since Sanity isn't set up yet
-  const mockTimeline = [
+  const timeline = [
     {
-      _key: "1945",
       year: 1945,
       title: "Born in Rural Alabama",
       description: "Born to sharecropper parents in Macon County, Alabama, during the height of the Jim Crow era.",
       category: "education",
     },
     {
-      _key: "1967",
       year: 1967,
       title: "Graduated from Tuskegee University",
       description:
@@ -51,7 +43,6 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
       category: "education",
     },
     {
-      _key: "1987",
       year: 1987,
       title: "Published Seminal Work",
       description:
@@ -60,7 +51,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
     },
   ]
 
-  const mockQuotes = [
+  const quotes = [
     "True development doesn't happen to a community—it happens with a community.",
     "The best solutions are already within the community; our job is to help them emerge.",
     "Economic democracy is not just an ideal—it's a practical necessity for sustainable development.",
@@ -78,9 +69,9 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href={`/?advisor=${basic.slug}`} className="flex items-center gap-2">
+            <Link href={`/?advisor=${advisor.slug}`} className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
-              Chat with {basic.full_name.split(" ")[0]}
+              Chat with Minerva
             </Link>
           </Button>
         </div>
@@ -93,20 +84,8 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               <div className="flex flex-col md:flex-row items-start gap-8">
                 <div className="flex-shrink-0">
                   <Avatar className="w-32 h-32 border-4 border-gray-600">
-                    <AvatarImage
-                      src="/placeholder.svg?height=128&width=128&text=Dr.+Minerva"
-                      alt={basic.full_name}
-                      onError={(e) => {
-                        // Fallback if image fails to load
-                        e.currentTarget.style.display = "none"
-                      }}
-                    />
                     <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-purple-600">
-                      {basic.full_name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .substring(0, 2)}
+                      MH
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -114,22 +93,22 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
                 <div className="flex-grow">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h1 className="text-4xl font-bold mb-2">{basic.full_name}</h1>
-                      <p className="text-xl text-gray-300 mb-2">{basic.role}</p>
+                      <h1 className="text-4xl font-bold mb-2">{advisor.full_name}</h1>
+                      <p className="text-xl text-gray-300 mb-2">{advisor.role}</p>
                       <p className="text-gray-400 flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         AI Memorial Agent
                       </p>
                     </div>
                     <Badge variant="outline" className="border-green-500 text-green-400">
-                      {basic.is_active ? "Active AI Agent" : "Legacy Archive"}
+                      Active AI Agent
                     </Badge>
                   </div>
 
-                  <p className="text-gray-300 text-lg leading-relaxed mb-6">{basic.bio}</p>
+                  <p className="text-gray-300 text-lg leading-relaxed mb-6">{advisor.bio}</p>
 
                   <div className="flex flex-wrap gap-2">
-                    {basic.specialties.map((specialty, index) => (
+                    {advisor.specialties.map((specialty, index) => (
                       <Badge key={index} variant="secondary" className="bg-gray-800 text-gray-300">
                         {specialty}
                       </Badge>
@@ -142,7 +121,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-gray-900 border border-gray-700">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-800">
               Overview
@@ -167,7 +146,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               <CardContent>
                 <div className="prose prose-invert max-w-none">
                   <div className="text-gray-300 leading-relaxed space-y-4">
-                    {basic.detailed_bio.split("\n\n").map((paragraph, index) => (
+                    {advisor.detailed_bio.split("\n\n").map((paragraph, index) => (
                       <p key={index}>{paragraph}</p>
                     ))}
                   </div>
@@ -184,8 +163,8 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {mockTimeline.map((event) => (
-                    <div key={event._key} className="flex items-start gap-4">
+                  {timeline.map((event, index) => (
+                    <div key={index} className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
                         {event.year}
                       </div>
@@ -214,10 +193,10 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {mockQuotes.map((quote, index) => (
+                  {quotes.map((quote, index) => (
                     <blockquote key={index} className="border-l-4 border-blue-500 pl-6 py-4">
                       <p className="text-gray-300 text-lg italic mb-2">"{quote}"</p>
-                      <cite className="text-gray-400">— {basic.full_name}</cite>
+                      <cite className="text-gray-400">— {advisor.full_name}</cite>
                     </blockquote>
                   ))}
                 </div>
@@ -261,17 +240,15 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
                 <CardContent>
                   <div className="space-y-4">
                     <Button className="w-full" asChild>
-                      <Link href={`/?advisor=${basic.slug}`}>
+                      <Link href={`/?advisor=${advisor.slug}`}>
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Chat with AI Agent
                       </Link>
                     </Button>
                     <Button variant="outline" className="w-full">
-                      <FileText className="h-4 w-4 mr-2" />
                       Contribute a Memory
                     </Button>
                     <Button variant="outline" className="w-full">
-                      <ExternalLink className="h-4 w-4 mr-2" />
                       Share This Memorial
                     </Button>
                   </div>
