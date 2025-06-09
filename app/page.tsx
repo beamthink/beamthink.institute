@@ -4,36 +4,39 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import {
   Plus,
-  Users,
   Building,
   Brain,
   FolderOpen,
   MapPin,
   Edit,
   Settings,
-  BookOpen,
   FileText,
   ExternalLink,
-  ChevronRight,
   Upload,
   Play,
   Send,
   Volume2,
   VolumeX,
   Pause,
+  Music,
+  Banknote,
+  Cog,
+  Eye,
+  TrendingUp,
+  Target,
+  DollarSign,
 } from "lucide-react"
-import { Eye } from "lucide-react"
 import Link from "next/link"
 // Ensure these shadcn/ui components are correctly added via `npx shadcn-ui@latest add <component>`
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Progress } from "@/components/ui/progress"
 // Correct import for sonner's useToast hook assuming it's correctly set up in layout.tsx
 import { toast } from "sonner" // Corrected import for sonner's toast function
 
@@ -48,7 +51,6 @@ export default function BeamOSDashboard() {
     avatar: "/placeholder.svg?height=40&width=40",
     role: "Community Manager",
   })
-  // const { toast } = useToast() // REMOVED: This is for shadcn/ui's toast, conflicting with sonner
   const [showProjectsModal, setShowProjectsModal] = useState(false)
   const [selectedAdvisor, setSelectedAdvisor] = useState<string | null>(null)
   const [chatMessages, setChatMessages] = useState<{
@@ -136,6 +138,7 @@ export default function BeamOSDashboard() {
     equipmentValue: 420000,
     potentialProjectValue: 3200000,
     fundingGoal: 5000000,
+    currentFunding: 2800000,
   }
 
   // Enhanced project data structures
@@ -1431,6 +1434,28 @@ export default function BeamOSDashboard() {
     },
   }
 
+  // Helper function to get node icon
+  const getNodeIcon = (nodeKey: string) => {
+    if (nodeKey.includes("FCU")) return Banknote
+    if (nodeKey.includes("Orchestra")) return Music
+    if (nodeKey.includes("Tech")) return Cog
+    return Building
+  }
+
+  // Helper function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "active":
+        return "bg-green-500"
+      case "planning":
+        return "bg-yellow-500"
+      case "proposed":
+        return "bg-blue-500"
+      default:
+        return "bg-red-500"
+    }
+  }
+
   // Filter nodes based on search query
   const filteredNodes = Object.keys(beamNodes).filter(
     (nodeKey) =>
@@ -1648,78 +1673,43 @@ export default function BeamOSDashboard() {
     }, 1500)
   }
 
-  // Enhanced Project Card Component for Overview
-  const EnhancedProjectCard = ({ project }: { project: EnhancedProject }) => (
-    <Card className="bg-gray-900/50 border-gray-700 rounded-2xl hover:border-gray-500 transition-colors">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              {project.projectType === "Manufacturing" && <Building className="h-6 w-6 text-white" />}
-              {project.projectType === "Housing" && <Users className="h-6 w-6 text-white" />}
-              {project.projectType === "Tech" && <Brain className="h-6 w-6 text-white" />}
-              {!["Manufacturing", "Housing", "Tech"].includes(project.projectType) && (
-                <FolderOpen className="h-6 w-6 text-white" />
-              )}
-            </div>
-            <div>
-              <CardTitle className="text-white text-lg">{project.title}</CardTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className="border-gray-700 text-gray-400 text-xs">
-                  {project.projectType}
-                </Badge>
-                <Badge
-                  variant={
-                    project.status === "active"
-                      ? "default"
-                      : project.status === "planning"
-                        ? "secondary"
-                        : "destructive"
-                  }
-                  className="bg-gray-800 text-gray-300 text-xs"
-                >
-                  {project.status === "active"
-                    ? "🟢 Active"
-                    : project.status === "planning"
-                      ? "🟡 Planning"
-                      : "🔴 Archived"}
-                </Badge>
-                <span className="text-muted-foreground text-xs">{project.nodeId}</span>
-              </div>
+  // Compact Project Card Component
+  const CompactProjectCard = ({ project }: { project: EnhancedProject }) => (
+    <Card className="bg-gray-900/50 border-gray-700 rounded-lg hover:border-gray-500 transition-colors">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1">
+            <h4 className="font-semibold text-white text-sm mb-1">{project.title}</h4>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className="border-gray-700 text-gray-400 text-xs px-2 py-0">
+                {project.projectType}
+              </Badge>
+              <Badge
+                variant={
+                  project.status === "active" ? "default" : project.status === "planning" ? "secondary" : "destructive"
+                }
+                className="text-xs px-2 py-0"
+              >
+                {project.status === "active" ? "Active" : project.status === "planning" ? "Planning" : "Archived"}
+              </Badge>
             </div>
           </div>
-          <ChevronRight className="h-5 w-5 text-gray-400" />
+          <Button variant="ghost" size="sm" className="text-xs">
+            <Eye className="h-3 w-3 mr-1" />
+            View
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-400 text-sm mb-4 leading-relaxed">{project.summary}</p>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Participants:</span>
-            <span className="text-white">{project.participants.length}</span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Open Positions:</span>
-            <span className="text-green-400">
-              {project.contributionPaths.reduce((sum, path) => sum + path.openings, 0)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Current Value:</span>
-            <span className="text-white">{formatCurrency(project.appreciationModel.currentValue || 0)}</span>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <div className="w-full bg-gray-800 rounded-full h-2 mb-2">
+        <p className="text-gray-400 text-xs mb-3 line-clamp-2">{project.summary}</p>
+        <div className="space-y-2">
+          <div className="w-full bg-gray-800 rounded-full h-1.5">
             <div
-              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+              className="bg-green-500 h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${Math.min((project.raised / project.budget) * 100, 100)}%` }}
             />
           </div>
-          <div className="text-xs text-gray-400">
-            {formatCurrency(project.raised)} raised of {formatCurrency(project.budget)} goal
+          <div className="flex justify-between text-xs text-gray-400">
+            <span>{formatCurrency(project.raised)} raised</span>
+            <span>{project.participants.length} participants</span>
           </div>
         </div>
       </CardContent>
@@ -1729,62 +1719,43 @@ export default function BeamOSDashboard() {
   // Projects Modal Component
   const ProjectsModal = () => (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-           {" "}
       <div className="bg-gray-900 border border-gray-700 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
-               {" "}
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
-                   {" "}
           <div className="flex items-center gap-3">
-                        <FolderOpen className="h-8 w-8 text-cyan-400" />           {" "}
+            <FolderOpen className="h-8 w-8 text-cyan-400" />
             <div>
-                            <h2 className="text-white text-3xl font-bold">Projects</h2>             {" "}
-              <p className="text-gray-400 text-lg">
-                                Community-driven initiatives shaping our future              {" "}
-              </p>
-                         {" "}
+              <h2 className="text-white text-3xl font-bold">Projects</h2>
+              <p className="text-gray-400 text-lg">Community-driven initiatives shaping our future</p>
             </div>
           </div>
-                   {" "}
           <Button
             variant="ghost"
             size="icon"
             className="hover:bg-gray-700 rounded-full"
             onClick={() => setShowProjectsModal(false)}
           >
-                       {" "}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
               className="w-6 h-6 text-gray-400 hover:text-gray-300 transition-colors"
             >
-                           {" "}
               <path
                 fillRule="evenodd"
                 d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z"
                 clipRule="evenodd"
               />
-                         {" "}
             </svg>
-                     {" "}
           </Button>
-                 {" "}
         </div>
-               {" "}
         <div className="p-6 overflow-y-auto h-full">
-                   {" "}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                       {" "}
             {projects.map((project) => (
-              <EnhancedProjectCard key={project.id} project={project} />
+              <CompactProjectCard key={project.id} project={project} />
             ))}
-                     {" "}
           </div>
-                 {" "}
         </div>
-             {" "}
       </div>
-         {" "}
     </div>
   )
 
@@ -2088,19 +2059,20 @@ export default function BeamOSDashboard() {
     )
   }
 
+  const fundingProgress = (financialData.currentFunding / financialData.fundingGoal) * 100
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <TooltipProvider>
-        <div className="container mx-auto py-8 px-4">
-          {showLogo && (
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold">BEAM OS Dashboard</h1>
-              <p className="text-gray-400">Welcome to the future of community collaboration</p>
+        <div className="container mx-auto py-6 px-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">BEAM OS Dashboard</h1>
+              <p className="text-gray-400">Community collaboration platform</p>
             </div>
-          )}
 
-          {/* Authentication Section */}
-          <div className="flex justify-end mb-6">
+            {/* Authentication Section */}
             {isLoggedIn ? (
               <div className="flex items-center space-x-4">
                 <Avatar>
@@ -2121,15 +2093,12 @@ export default function BeamOSDashboard() {
           </div>
 
           {/* Main Dashboard Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Left Sidebar - Node Selection */}
-            <div className="md:col-span-1 space-y-4">
-              <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-white">Select a Node</CardTitle>
-                  <CardDescription className="text-gray-400">Explore community initiatives</CardDescription>
-                </CardHeader>
-                <CardContent>
+            <div className="lg:col-span-1 space-y-4">
+              <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-lg">Select Node</CardTitle>
                   <Input
                     type="search"
                     placeholder="Search nodes..."
@@ -2137,41 +2106,63 @@ export default function BeamOSDashboard() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-gray-800 border-gray-700 text-white"
                   />
-                  <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="space-y-1 max-h-64 overflow-y-auto">
                     {filteredNodes.length > 0 ? (
-                      filteredNodes.map((nodeKey) => (
-                        <Button
-                          key={nodeKey}
-                          variant="ghost"
-                          className={`w-full justify-start hover:bg-gray-700 rounded-md ${selectedNode === nodeKey ? "bg-gray-700" : ""}`}
-                          onClick={() => setSelectedNode(nodeKey)}
-                        >
-                          {nodeKey}
-                        </Button>
-                      ))
+                      filteredNodes.map((nodeKey) => {
+                        const node = beamNodes[nodeKey]
+                        const IconComponent = getNodeIcon(nodeKey)
+                        const statusColor = getStatusColor(node.location.status)
+
+                        return (
+                          <Button
+                            key={nodeKey}
+                            variant="ghost"
+                            className={`w-full justify-start hover:bg-gray-700 rounded-md p-3 h-auto ${
+                              selectedNode === nodeKey ? "bg-gray-700" : ""
+                            }`}
+                            onClick={() => setSelectedNode(nodeKey)}
+                          >
+                            <div className="flex items-center gap-3 w-full">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${statusColor}`} />
+                                <IconComponent className="h-4 w-4 text-gray-400" />
+                              </div>
+                              <div className="flex-1 text-left">
+                                <div className="text-sm font-medium text-white truncate">{nodeKey}</div>
+                                <div className="text-xs text-gray-400">{node.location.city}</div>
+                              </div>
+                            </div>
+                          </Button>
+                        )
+                      })
                     ) : (
-                      <p className="text-gray-500">No nodes found.</p>
+                      <p className="text-gray-500 text-sm">No nodes found.</p>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
               {/* Quick Actions Card */}
-              <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-white">Quick Actions</CardTitle>
-                  <CardDescription className="text-gray-400">Manage your contributions</CardDescription>
+              <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-white text-lg">Quick Actions</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="secondary" className="w-full" onClick={() => setShowContributionModal(true)}>
+                <CardContent className="pt-0 space-y-2">
+                  <Button
+                    variant="secondary"
+                    className="w-full justify-start"
+                    onClick={() => setShowContributionModal(true)}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Contribute
                   </Button>
-                  <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
+                  <Button variant="secondary" className="w-full justify-start" onClick={() => showLoginRequiredToast()}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
-                  <Button variant="secondary" className="w-full" onClick={() => showLoginRequiredToast()}>
+                  <Button variant="secondary" className="w-full justify-start" onClick={() => showLoginRequiredToast()}>
                     <Settings className="w-4 h-4 mr-2" />
                     Settings
                   </Button>
@@ -2179,279 +2170,237 @@ export default function BeamOSDashboard() {
               </Card>
             </div>
 
-            {/* Main Content Area - Node Overview */}
-            <div className="md:col-span-3 space-y-6">
+            {/* Main Content Area */}
+            <div className="lg:col-span-3 space-y-6">
               {currentNode ? (
                 <>
                   {/* Node Header */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-white text-2xl font-bold">{selectedNode}</CardTitle>
-                        <CardDescription className="text-gray-400">
-                          {currentNode.mission}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-white text-xl font-bold mb-2">{selectedNode}</CardTitle>
+                          <CardDescription className="text-gray-400 text-sm leading-relaxed">
+                            {currentNode.mission}
+                          </CardDescription>
                           {currentPod && (
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-3">
                               <MapPin className="h-4 w-4 text-gray-500" />
                               <span className="text-sm text-gray-500">{currentPod.location}</span>
                             </div>
                           )}
-                        </CardDescription>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => showInfoToast("This feature is under development")}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
                       </div>
-                      <Button variant="secondary" onClick={() => showInfoToast("This feature is under development")}>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Node
-                      </Button>
                     </CardHeader>
                   </Card>
 
-                  {/* Financial Overview */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Financial Overview</CardTitle>
-                      <CardDescription className="text-gray-400">Key financial metrics for this node</CardDescription>
+                  {/* Financial Overview - Compressed */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-white text-lg">Financial Overview</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Total Assets:</span>
-                            <span className="text-white">{formatCurrency(financialData.totalAssets)}</span>
-                          </div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Liquid Funds:</span>
-                            <span className="text-white">{formatCurrency(financialData.liquidFunds)}</span>
-                          </div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Property Value:</span>
-                            <span className="text-white">{formatCurrency(financialData.propertyValue)}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Equipment Value:</span>
-                            <span className="text-white">{formatCurrency(financialData.equipmentValue)}</span>
-                          </div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Potential Project Value:</span>
-                            <span className="text-white">{formatCurrency(financialData.potentialProjectValue)}</span>
-                          </div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-gray-400">Funding Goal:</span>
-                            <span className="text-white">{formatCurrency(financialData.fundingGoal)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Projects Overview */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-white">Projects Overview</CardTitle>
-                        <CardDescription className="text-gray-400">Active initiatives in this node</CardDescription>
-                      </div>
-                      <Button variant="secondary" onClick={() => setShowProjectsModal(true)}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View All
-                      </Button>
-                    </CardHeader>
-                    <CardContent>
-                      {nodeProjects.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {nodeProjects.slice(0, 2).map((project) => (
-                            <EnhancedProjectCard key={project.id} project={project} />
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No projects found for this node.</p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Participants Section */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Participants</CardTitle>
-                      <CardDescription className="text-gray-400">Key contributors to this node</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {nodeParticipants.length > 0 ? (
-                        <div className="flex items-center space-x-4 overflow-x-auto">
-                          {nodeParticipants.map((participant) => (
-                            <div key={participant.id} className="flex flex-col items-center">
-                              <Avatar>
-                                <AvatarImage src={participant.avatar || "/placeholder.svg"} alt={participant.name} />
-                                <AvatarFallback>{participant.name.substring(0, 2)}</AvatarFallback>
-                              </Avatar>
-                              <span className="text-sm text-gray-400 mt-1">{participant.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500">No participants found for this node.</p>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Access Tools Section */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Access Tools</CardTitle>
-                      <CardDescription className="text-gray-400">Resources and platforms for this node</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {currentNode.accessTools.website && (
-                        <Button variant="secondary" asChild>
-                          <a
-                            href={currentNode.accessTools.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}
-                          >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Website
-                          </a>
-                        </Button>
-                      )}
-                      {currentNode.accessTools.apps?.ios && (
-                        <Button variant="secondary" asChild>
-                          <a
-                            href={currentNode.accessTools.apps.ios}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => handlePlaceholderClick(e, "Navigating to iOS App Store")}
-                          >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            iOS App
-                          </a>
-                        </Button>
-                      )}
-                      {currentNode.accessTools.apps?.android && (
-                        <Button variant="secondary" asChild>
-                          <a
-                            href={currentNode.accessTools.apps.android}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => handlePlaceholderClick(e, "Navigating to Google Play Store")}
-                          >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Android App
-                          </a>
-                        </Button>
-                      )}
-                      {currentNode.accessTools.tools?.map((tool) => (
-                        <Button variant="secondary" key={tool.name} asChild>
-                          <a
-                            href={tool.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => handlePlaceholderClick(e, tool.description)}
-                          >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            {tool.name}
-                          </a>
-                        </Button>
-                      ))}
-                    </CardContent>
-                  </Card>
-
-                  {/* Admin Roles Section */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Admin Roles</CardTitle>
-                      <CardDescription className="text-gray-400">Leadership and advisory positions</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full">
-                        {adminRoles.map((role, index) => (
-                          <AccordionItem key={index} value={`item-${index}`}>
-                            <AccordionTrigger className="text-white hover:bg-gray-700 rounded-md">
-                              {role.title} - {role.status}
-                            </AccordionTrigger>
-                            <AccordionContent className="text-gray-400">
-                              <p>{role.bio}</p>
-                              {role.person && <p className="mt-2">Person: {role.person}</p>}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
-
-                  {/* Wiki Articles Section */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Wiki Articles</CardTitle>
-                      <CardDescription className="text-gray-400">Learn more about BEAM OS</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {wikiArticles.map((article, index) => (
-                          <div key={index} className="flex items-start justify-between">
-                            <div>
-                              <h3 className="text-white font-semibold">{article.title}</h3>
-                              <p className="text-gray-400 text-sm">{article.summary}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="border-gray-700 text-gray-400 text-xs">
-                                  {article.category}
-                                </Badge>
-                                <span className="text-muted-foreground text-xs">
-                                  Last Updated: {article.lastUpdated}
-                                </span>
+                    <CardContent className="pt-0">
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
+                                  <span className="text-xs text-gray-400">Total Assets</span>
+                                </div>
+                                <div className="text-lg font-bold text-white">
+                                  {formatCurrency(financialData.totalAssets)}
+                                </div>
                               </div>
-                            </div>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => showInfoToast("Navigating to Wiki Article")}
-                            >
-                              <BookOpen className="w-4 h-4 mr-2" />
-                              Read More
-                            </Button>
-                          </div>
-                        ))}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Combined value of all node assets including property, equipment, and liquid funds</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Target className="h-4 w-4 text-blue-400 mr-1" />
+                                  <span className="text-xs text-gray-400">Project Potential</span>
+                                </div>
+                                <div className="text-lg font-bold text-white">
+                                  {formatCurrency(financialData.potentialProjectValue)}
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Estimated value potential from active and planned projects</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-center p-3 bg-gray-800/50 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <DollarSign className="h-4 w-4 text-yellow-400 mr-1" />
+                                  <span className="text-xs text-gray-400">Funding Progress</span>
+                                </div>
+                                <div className="text-lg font-bold text-white">{Math.round(fundingProgress)}%</div>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                {formatCurrency(financialData.currentFunding)} of{" "}
+                                {formatCurrency(financialData.fundingGoal)} funding goal
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-400">Funding Progress</span>
+                          <span className="text-white">
+                            {formatCurrency(financialData.currentFunding)} / {formatCurrency(financialData.fundingGoal)}
+                          </span>
+                        </div>
+                        <Progress value={fundingProgress} className="h-2" />
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Partners Section */}
-                  <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
-                    <CardHeader>
-                      <CardTitle className="text-white">Partners</CardTitle>
-                      <CardDescription className="text-gray-400">Organizations supporting this node</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {partners.map((partner) => (
-                          <div key={partner.id} className="flex items-center space-x-3">
-                            <Avatar>
-                              <AvatarImage src={partner.logo || "/placeholder.svg"} alt={partner.name} />
-                              <AvatarFallback>{partner.name.substring(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-white font-medium">{partner.name}</p>
-                              <p className="text-gray-400 text-sm">{partner.type}</p>
-                            </div>
-                          </div>
-                        ))}
+                  {/* Projects Overview - Top 3 Only */}
+                  <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white text-lg">Active Projects</CardTitle>
+                        <Button variant="outline" size="sm" onClick={() => setShowProjectsModal(true)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View All ({projects.length})
+                        </Button>
                       </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      {nodeProjects.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {nodeProjects.slice(0, 3).map((project) => (
+                            <CompactProjectCard key={project.id} project={project} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <FolderOpen className="h-12 w-12 text-gray-600 mx-auto mb-3" />
+                          <p className="text-gray-500">No projects found for this node.</p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-3"
+                            onClick={() => showInfoToast("Project creation coming soon")}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Project
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
+
+                  {/* Participants & Access Tools - Combined */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-white text-lg">Participants</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        {nodeParticipants.length > 0 ? (
+                          <div className="space-y-3">
+                            {nodeParticipants.map((participant) => (
+                              <div key={participant.id} className="flex items-center space-x-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={participant.avatar || "/placeholder.svg"} alt={participant.name} />
+                                  <AvatarFallback className="text-xs">
+                                    {participant.name.substring(0, 2)}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-white truncate">{participant.name}</p>
+                                  <p className="text-xs text-gray-400 truncate">{participant.role}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 text-sm">No participants found for this node.</p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gray-900/50 border-gray-700 rounded-xl">
+                      <CardHeader className="pb-4">
+                        <CardTitle className="text-white text-lg">Access Tools</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0 space-y-2">
+                        {currentNode.accessTools.website && (
+                          <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                            <a
+                              href={currentNode.accessTools.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => handlePlaceholderClick(e, "Navigating to external website")}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Website
+                            </a>
+                          </Button>
+                        )}
+                        {currentNode.accessTools.tools?.slice(0, 2).map((tool) => (
+                          <Button variant="outline" size="sm" className="w-full justify-start" key={tool.name} asChild>
+                            <a
+                              href={tool.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => handlePlaceholderClick(e, tool.description)}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              {tool.name}
+                            </a>
+                          </Button>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </div>
                 </>
               ) : (
-                <div className="text-center text-gray-500">Select a node to view details.</div>
+                <div className="text-center text-gray-500 py-12">
+                  <Building className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Select a node to view details</h3>
+                  <p className="text-sm">
+                    Choose from the available nodes in the sidebar to explore community initiatives.
+                  </p>
+                </div>
               )}
             </div>
           </div>
 
           {/* AI Advisor Chat Section */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">AI Advisors</h2>
-            <p className="text-gray-400 mb-6">Connect with AI agents for expert insights and guidance.</p>
+          <div className="mt-12">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-2">AI Advisors</h2>
+              <p className="text-gray-400">Connect with AI agents for expert insights and guidance.</p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {aiAgents.map((advisor) => (
                 <AdvisorChat key={advisor.id} advisor={advisor} />
               ))}
