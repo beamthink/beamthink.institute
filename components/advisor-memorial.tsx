@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Quote, FileText, ExternalLink, MessageCircle } from "lucide-react"
+import { ArrowLeft, Calendar, Quote, FileText, ExternalLink, MessageCircle, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import ContributionModal from "./contribution-modal"
+import CommunityMemories from "./community-memories"
 
 interface AdvisorMemorialProps {
   advisorData: {
@@ -32,6 +34,8 @@ interface AdvisorMemorialProps {
 export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
   const { basic, detailed } = advisorData
   const [activeTab, setActiveTab] = useState("overview")
+  const [showContributionModal, setShowContributionModal] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Mock data for demonstration since Sanity isn't set up yet
   const mockTimeline = [
@@ -66,6 +70,10 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
     "Economic democracy is not just an ideal—it's a practical necessity for sustainable development.",
   ]
 
+  const handleContributionSubmitted = () => {
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="container mx-auto py-8 px-4">
@@ -82,6 +90,10 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               <MessageCircle className="h-4 w-4" />
               Chat with {basic.full_name.split(" ")[0]}
             </Link>
+          </Button>
+          <Button className="ml-auto" onClick={() => setShowContributionModal(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Contribute Memory
           </Button>
         </div>
 
@@ -143,7 +155,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-gray-900 border border-gray-700">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-gray-900 border border-gray-700">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-800">
               Overview
             </TabsTrigger>
@@ -152,6 +164,9 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
             </TabsTrigger>
             <TabsTrigger value="quotes" className="data-[state=active]:bg-gray-800">
               Quotes
+            </TabsTrigger>
+            <TabsTrigger value="memories" className="data-[state=active]:bg-gray-800">
+              Community Memories
             </TabsTrigger>
             <TabsTrigger value="legacy" className="data-[state=active]:bg-gray-800">
               Legacy
@@ -225,6 +240,11 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
             </Card>
           </TabsContent>
 
+          {/* Community Memories Tab */}
+          <TabsContent value="memories">
+            <CommunityMemories advisorSlug={basic.slug} refreshTrigger={refreshTrigger} />
+          </TabsContent>
+
           {/* Legacy Tab */}
           <TabsContent value="legacy">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -266,7 +286,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
                         Chat with AI Agent
                       </Link>
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={() => setShowContributionModal(true)}>
                       <FileText className="h-4 w-4 mr-2" />
                       Contribute a Memory
                     </Button>
@@ -280,6 +300,15 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Contribution Modal */}
+        <ContributionModal
+          isOpen={showContributionModal}
+          onClose={() => setShowContributionModal(false)}
+          advisorName={basic.full_name}
+          advisorSlug={basic.slug}
+          onContributionSubmitted={handleContributionSubmitted}
+        />
       </div>
     </div>
   )
