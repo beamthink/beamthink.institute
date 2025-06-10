@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "BEAM OS Dashboard",
   description: "Community-owned infrastructure and cooperative economics platform",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -18,8 +18,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    // ADD suppressHydrationWarning={true} TO HTML TAG
+    <html lang="en" className="dark" suppressHydrationWarning={true}>
+      {/* ADD suppressHydrationWarning={true} TO BODY TAG */}
+      <body className={inter.className} suppressHydrationWarning={true}>
         {children}
         <Toaster
           position="top-right"
