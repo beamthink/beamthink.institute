@@ -39,6 +39,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Progress } from "@/components/ui/progress"
 // Correct import for sonner's useToast hook assuming it's correctly set up in layout.tsx
 import { toast } from "sonner" // Corrected import for sonner's toast function
+import { useAdvisors } from "@/hooks/use-advisors"
+
+// Extend the Window interface to include SpeechRecognition and webkitSpeechRecognition
+declare global {
+  interface Window {
+    SpeechRecognition: any
+    webkitSpeechRecognition: any
+  }
+}
 
 export default function BeamOSDashboard() {
   const [selectedNode, setSelectedNode] = useState("BEAM FCU - Atlanta")
@@ -264,310 +273,8 @@ export default function BeamOSDashboard() {
     lastUpdated: Date
   }
 
-  // Enhanced AI Agents data
-  const aiAgents: AIAdvisor[] = [
-    {
-      id: "minerva-haugabrooks",
-      slug: "minerva-haugabrooks",
-      fullName: "Dr. Minerva Haugabrooks",
-      role: "Community Development Strategist",
-      bio: "AI agent specializing in community development, urban planning, and social impact assessment. Provides strategic insights for sustainable community initiatives.",
-      detailedBio:
-        "Dr. Minerva Haugabrooks was a pioneering community development strategist whose work fundamentally shaped how we understand the intersection of urban planning, social justice, and economic empowerment. Born in 1945 in rural Alabama, she witnessed firsthand the challenges facing underserved communities and dedicated her life to developing innovative, community-centered solutions.\n\nHer groundbreaking research on 'Participatory Economic Development' introduced frameworks that prioritized community ownership and decision-making in development projects. Dr. Haugabrooks believed that sustainable change could only come from within communities themselves, with external support serving as a catalyst rather than a driving force.\n\nThroughout her 40-year career, she advised on over 200 community development projects across the American South, establishing cooperative businesses, community land trusts, and participatory budgeting initiatives that continue to thrive today. Her work directly influenced the creation of over 50 community-owned enterprises and helped secure affordable housing for thousands of families.\n\nDr. Haugabrooks was also a prolific writer and educator, authoring 12 books and over 100 academic papers on community development theory and practice. She held teaching positions at Tuskegee University, Morehouse College, and Clark Atlanta University, mentoring hundreds of students who went on to become community leaders themselves.",
-      avatar: "/placeholder.svg?height=120&width=120&text=Dr.+Minerva",
-      birthYear: 1945,
-      deathYear: 2019,
-      specialties: [
-        "Community Development",
-        "Urban Planning",
-        "Cooperative Economics",
-        "Social Impact Assessment",
-        "Participatory Democracy",
-        "Community Land Trusts",
-      ],
-      keyWorks: [
-        "Participatory Economic Development: A Framework for Community Ownership (1987)",
-        "Building from Within: Community-Centered Development Strategies (1995)",
-        "The Cooperative Advantage: Economic Democracy in Practice (2003)",
-        "Roots and Routes: Sustainable Development in the American South (2012)",
-      ],
-      quotes: [
-        "True development doesn't happen to a community—it happens with a community.",
-        "The best solutions are already within the community; our job is to help them emerge.",
-        "Economic democracy is not just an ideal—it's a practical necessity for sustainable development.",
-        "When communities control their own development, they create wealth that stays and grows.",
-      ],
-      timeline: [
-        {
-          year: 1945,
-          title: "Born in Rural Alabama",
-          description: "Born to sharecropper parents in Macon County, Alabama, during the height of the Jim Crow era.",
-          category: "education",
-        },
-        {
-          year: 1967,
-          title: "Graduated from Tuskegee University",
-          description:
-            "Earned Bachelor's degree in Sociology, inspired by the civil rights movement and community organizing.",
-          category: "education",
-        },
-        {
-          year: 1972,
-          title: "PhD in Urban Planning",
-          description: "Completed doctoral studies at MIT, focusing on community-controlled development strategies.",
-          category: "education",
-        },
-        {
-          year: 1975,
-          title: "First Community Development Project",
-          description:
-            "Led the revitalization of the Historic Auburn Avenue district in Atlanta, establishing the first community land trust in Georgia.",
-          category: "career",
-        },
-        {
-          year: 1987,
-          title: "Published Seminal Work",
-          description:
-            "Released 'Participatory Economic Development,' which became the foundational text for community-centered development.",
-          category: "publication",
-        },
-        {
-          year: 1995,
-          title: "Founded Community Development Institute",
-          description:
-            "Established the Institute at Clark Atlanta University to train the next generation of community developers.",
-          category: "achievement",
-        },
-        {
-          year: 2003,
-          title: "MacArthur Fellowship",
-          description:
-            "Received the MacArthur 'Genius Grant' for her innovative approaches to community economic development.",
-          category: "achievement",
-        },
-        {
-          year: 2019,
-          title: "Legacy Continues",
-          description:
-            "Passed away at age 74, leaving behind a network of thriving communities and hundreds of trained practitioners.",
-          category: "legacy",
-        },
-      ],
-      media: [
-        {
-          id: "minerva-1",
-          type: "image",
-          title: "Dr. Haugabrooks at Community Meeting, 1985",
-          description: "Leading a participatory planning session in Birmingham, Alabama",
-          url: "/placeholder.svg?height=300&width=400&text=Community+Meeting",
-          uploadedBy: "BEAM Archive",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["historical", "community organizing", "1980s"],
-          approved: true,
-        },
-        {
-          id: "minerva-2",
-          type: "document",
-          title: "Original Manuscript: Participatory Economic Development",
-          description: "Handwritten notes and early drafts of her groundbreaking 1987 book",
-          url: "/placeholder.svg?height=300&width=400&text=Manuscript",
-          uploadedBy: "Haugabrooks Estate",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["manuscript", "theory", "economics"],
-          approved: true,
-        },
-        {
-          id: "minerva-3",
-          type: "video",
-          title: "1995 Lecture: Building Community Wealth",
-          description: "Complete recording of her famous lecture at Harvard Kennedy School",
-          url: "/placeholder.svg?height=300&width=400&text=Video+Lecture",
-          uploadedBy: "Harvard Archives",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["lecture", "education", "community wealth"],
-          approved: true,
-        },
-        {
-          id: "minerva-4",
-          type: "audio",
-          title: "Voice Sample: Dr. Haugabrooks Interview, 1998",
-          description: "Audio interview discussing community development principles",
-          url: "/placeholder.svg?height=300&width=400&text=Audio+Interview",
-          uploadedBy: "NPR Archives",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["interview", "voice", "1998"],
-          approved: true,
-        },
-      ],
-      contributions: [
-        {
-          id: "contrib-1",
-          type: "memory",
-          title: "Working with Dr. Haugabrooks in Atlanta",
-          content:
-            "I had the privilege of working with Dr. Haugabrooks on the Auburn Avenue project in the late 1970s. What struck me most was her ability to listen—really listen—to community members. She would spend hours in barbershops, beauty salons, and church basements, not talking about her plans, but asking people about their dreams for their neighborhood. She taught me that the best development strategies come from the community itself.",
-          contributorName: "James Washington",
-          contributorEmail: "jwashington@example.com",
-          submittedAt: new Date("2024-01-15"),
-          approved: true,
-          tags: ["personal story", "methodology", "Atlanta"],
-        },
-        {
-          id: "contrib-2",
-          type: "quote",
-          title: "On Community Ownership",
-          content:
-            "Dr. Haugabrooks once told our class: 'When a community owns its development process, it owns its future. When development is done to a community, the community becomes a tenant in its own neighborhood.'",
-          contributorName: "Maria Rodriguez",
-          contributorEmail: "mrodriguez@example.com",
-          submittedAt: new Date("2024-01-20"),
-          approved: true,
-          tags: ["quote", "philosophy", "ownership"],
-        },
-      ],
-      chatPersonality:
-        "Dr. Haugabrooks speaks with warmth and wisdom, often drawing from her extensive experience working with communities across the American South. She asks thoughtful questions to understand the context before offering advice, and frequently references the importance of community ownership and participatory decision-making. Her responses are practical yet visionary, grounded in decades of real-world experience.",
-      voiceCharacteristics:
-        "Warm, measured Southern accent with thoughtful pauses. Speaks with the authority of experience but maintains a nurturing, grandmother-like quality. Often emphasizes key words and uses inclusive language.",
-      isActive: true,
-      totalContributions: 2,
-      lastUpdated: new Date("2024-02-20"),
-    },
-    {
-      id: "james-smith",
-      slug: "james-smith",
-      fullName: "James D. Smith",
-      role: "Technology Integration Specialist",
-      bio: "AI agent focused on technology solutions for community spaces, digital inclusion strategies, and innovative tools for collaborative work.",
-      detailedBio:
-        "James D. Smith was a visionary technologist who dedicated his career to bridging the digital divide and ensuring that technology served community empowerment rather than displacement. Born in Detroit in 1960, he grew up witnessing both the decline of traditional manufacturing and the early promise of the computer revolution.\n\nSmith's unique contribution was his understanding that technology alone could never solve community problems—but that the right technology, implemented with community input and ownership, could be a powerful tool for social change. He pioneered the concept of 'Community-Controlled Technology,' developing frameworks for how neighborhoods could own and operate their own digital infrastructure.\n\nThroughout the 1990s and 2000s, Smith worked with dozens of communities to establish community-owned internet networks, digital literacy programs, and technology cooperatives. His work was instrumental in the development of community wireless networks and the early community broadband movement.\n\nSmith was also a prolific inventor and open-source advocate, holding 15 patents while simultaneously releasing dozens of community technology tools under open licenses. He believed that communities should have the right to understand, modify, and control the technology they used.",
-      avatar: "/placeholder.svg?height=120&width=120&text=James+Smith",
-      birthYear: 1960,
-      deathYear: 2021,
-      specialties: [
-        "Community Technology",
-        "Digital Inclusion",
-        "Open Source Development",
-        "Community Networks",
-        "Digital Literacy",
-      ],
-      keyWorks: [
-        "Community-Controlled Technology: A Framework for Digital Democracy (1998)",
-        "The Neighborhood Network: Building Community-Owned Internet (2005)",
-        "Open Source Community Development (2010)",
-        "Digital Sovereignty in Practice (2018)",
-      ],
-      quotes: [
-        "Technology should amplify community voices, not replace them.",
-        "The best technology is invisible—it just helps people do what they already want to do.",
-        "Every community should have the right to understand and control its digital infrastructure.",
-        "Innovation happens when communities have the tools to solve their own problems.",
-      ],
-      timeline: [
-        {
-          year: 1960,
-          title: "Born in Detroit",
-          description:
-            "Born in Detroit during the height of the automotive industry, witnessed the city's transformation through deindustrialization.",
-          category: "education",
-        },
-        {
-          year: 1982,
-          title: "Computer Science Degree",
-          description:
-            "Graduated from University of Michigan with a focus on distributed systems and community applications.",
-          category: "education",
-        },
-        {
-          year: 1990,
-          title: "First Community Network",
-          description:
-            "Helped establish one of the first community-owned bulletin board systems (BBS) in East Detroit.",
-          category: "career",
-        },
-        {
-          year: 1998,
-          title: "Published Technology Framework",
-          description: "Released his influential work on community-controlled technology development.",
-          category: "publication",
-        },
-        {
-          year: 2005,
-          title: "Community Broadband Pioneer",
-          description: "Led the development of the first community-owned fiber network in rural Michigan.",
-          category: "achievement",
-        },
-        {
-          year: 2015,
-          title: "Open Source Community Platform",
-          description: "Released the Community OS platform, now used by over 100 community organizations worldwide.",
-          category: "achievement",
-        },
-        {
-          year: 2021,
-          title: "Digital Legacy",
-          description: "Passed away at 61, leaving behind a network of community-controlled technology initiatives.",
-          category: "legacy",
-        },
-      ],
-      media: [
-        {
-          id: "james-1",
-          type: "image",
-          title: "Installing Community Network Equipment, 2005",
-          description: "James working with community volunteers to install fiber optic equipment",
-          url: "/placeholder.svg?height=300&width=400&text=Network+Installation",
-          uploadedBy: "Detroit Community Networks",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["community networks", "installation", "2005"],
-          approved: true,
-        },
-        {
-          id: "james-2",
-          type: "document",
-          title: "Community OS Source Code",
-          description: "Original source code and documentation for the Community OS platform",
-          url: "/placeholder.svg?height=300&width=400&text=Source+Code",
-          uploadedBy: "Open Source Archive",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["open source", "platform", "code"],
-          approved: true,
-        },
-        {
-          id: "james-3",
-          type: "audio",
-          title: "Voice Sample: James at TechSoup Conference, 2010",
-          description: "Audio recording of James discussing community technology principles",
-          url: "/placeholder.svg?height=300&width=400&text=Conference+Audio",
-          uploadedBy: "TechSoup Archives",
-          uploadedAt: new Date("2024-01-01"),
-          tags: ["conference", "voice", "2010"],
-          approved: true,
-        },
-      ],
-      contributions: [
-        {
-          id: "contrib-3",
-          type: "memory",
-          title: "Learning from James at TechSoup Conference",
-          content:
-            "I met James at a TechSoup conference in 2010. What impressed me was how he always asked 'Who benefits?' when evaluating any technology solution. He taught me that the most important question isn't 'Can we build this?' but 'Should we build this, and who gets to decide?'",
-          contributorName: "Sarah Kim",
-          contributorEmail: "skim@example.com",
-          submittedAt: new Date("2024-01-18"),
-          approved: true,
-          tags: ["conference", "philosophy", "ethics"],
-        },
-      ],
-      chatPersonality:
-        "James speaks with the practical wisdom of someone who has spent decades implementing technology in real communities. He's curious about the specific context and always asks about community ownership and control. His responses blend technical expertise with deep understanding of community dynamics, and he often suggests starting small and building incrementally.",
-      voiceCharacteristics:
-        "Clear Midwestern accent with a friendly, approachable tone. Speaks with technical precision but avoids jargon. Has a slight enthusiasm when discussing community empowerment through technology.",
-      isActive: true,
-      totalContributions: 1,
-      lastUpdated: new Date("2024-02-20"),
-    },
-  ]
+  // Remove the large mock aiAgents array and replace with:
+  const { advisors: aiAgents, loading: advisorsLoading, error: advisorsError } = useAdvisors()
 
   // Enhanced Project data
   const enhancedProjects: EnhancedProject[] = [
@@ -2400,11 +2107,25 @@ export default function BeamOSDashboard() {
               <p className="text-gray-400">Connect with AI agents for expert insights and guidance.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {aiAgents.map((advisor) => (
-                <AdvisorChat key={advisor.id} advisor={advisor} />
-              ))}
-            </div>
+            {advisorsLoading ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">Loading AI advisors...</p>
+              </div>
+            ) : advisorsError ? (
+              <div className="text-center py-8">
+                <p className="text-red-400">Error loading advisors: {advisorsError}</p>
+              </div>
+            ) : aiAgents.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {aiAgents.map((advisor) => (
+                  <AdvisorChat key={advisor.id} advisor={advisor} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No AI advisors available.</p>
+              </div>
+            )}
           </div>
 
           {/* Projects Modal */}

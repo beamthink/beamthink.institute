@@ -27,6 +27,15 @@ interface Advisor {
   specialties: string[]
   isActive: boolean
   source: "supabase" | "sanity"
+  // Add these fields to match the dashboard expectations
+  quotes?: string[]
+  timeline?: any[]
+  media?: any[]
+  contributions?: any[]
+  chatPersonality?: string
+  voiceCharacteristics?: string
+  totalContributions?: number
+  lastUpdated?: Date
 }
 
 export function useProjects(nodeId?: string) {

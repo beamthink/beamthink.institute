@@ -26,6 +26,7 @@ interface AdvisorMemorialProps {
       created_at: string
       updated_at: string
       sanity_person_id?: string | null
+      quotes?: string[]
     }
     detailed?: any // Sanity data (optional for now)
   }
@@ -38,7 +39,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Mock data for demonstration since Sanity isn't set up yet
-  const mockTimeline = [
+  const mockTimeline = advisorData.detailed?.timeline || [
     {
       _key: "1945",
       year: 1945,
@@ -64,11 +65,12 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
     },
   ]
 
-  const mockQuotes = [
-    "True development doesn't happen to a community—it happens with a community.",
-    "The best solutions are already within the community; our job is to help them emerge.",
-    "Economic democracy is not just an ideal—it's a practical necessity for sustainable development.",
-  ]
+  const mockQuotes = advisorData.detailed?.quotes ||
+    advisorData.basic.quotes || [
+      "True development doesn't happen to a community—it happens with a community.",
+      "The best solutions are already within the community; our job is to help them emerge.",
+      "Economic democracy is not just an ideal—it's a practical necessity for sustainable development.",
+    ]
 
   const handleContributionSubmitted = () => {
     setRefreshTrigger((prev) => prev + 1)
