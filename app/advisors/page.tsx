@@ -37,21 +37,31 @@ export default function AdvisorsPage() {
 
   const { advisors: aiAgents, loading: advisorsLoading, error: advisorsError } = useAdvisors()
 
+  // Debug logging
+  useEffect(() => {
+    console.log("🔍 Advisors Page State:", {
+      loading: advisorsLoading,
+      error: advisorsError,
+      advisorsCount: aiAgents?.length || 0,
+      advisors: aiAgents,
+    })
+  }, [advisorsLoading, advisorsError, aiAgents])
+
   // Voice profiles for each advisor
   const voiceProfiles = {
     "minerva-haugabrooks": {
       rate: 0.9,
       pitch: 1.1,
       volume: 0.8,
-      voiceName: "female", // Will try to find a suitable female voice
-      accent: "southern", // Simulated through rate and pitch adjustments
+      voiceName: "female",
+      accent: "southern",
       characteristics: "warm, thoughtful, measured",
     },
     "james-smith": {
       rate: 1.0,
       pitch: 0.9,
       volume: 0.8,
-      voiceName: "male", // Will try to find a suitable male voice
+      voiceName: "male",
       accent: "midwest",
       characteristics: "clear, technical, friendly",
     },
@@ -214,43 +224,8 @@ export default function AdvisorsPage() {
         setIsPlaying(false)
         setAudioUrl(null)
       } else {
-        // Play the new audio
-        try {
-          // Fetch the audio data from the API endpoint
-          const response = await fetch(`/api/generate-audio?text=${message.content}&advisorId=${advisor.id}`)
-          if (!response.ok) {
-            throw new Error(`Failed to fetch audio: ${response.status} ${response.statusText}`)
-          }
-
-          const data = await response.json()
-          if (data.audioUrl) {
-            setAudioUrl(data.audioUrl)
-            setIsPlaying(true)
-
-            // Play the audio
-            const audio = new Audio(data.audioUrl)
-            audio.play()
-
-            // Set isPlaying to false when audio ends
-            audio.onended = () => {
-              setIsPlaying(false)
-              setAudioUrl(null)
-            }
-
-            // Handle audio errors
-            audio.onerror = (error) => {
-              console.error("Audio playback error:", error)
-              setIsPlaying(false)
-              setAudioUrl(null)
-              showErrorToast("Error playing audio. Please try again.")
-            }
-          } else {
-            showErrorToast("Failed to generate audio. Please try again.")
-          }
-        } catch (error: any) {
-          console.error("Error generating or playing audio:", error)
-          showErrorToast(`Error: ${error.message || "Failed to generate audio. Please try again."}`)
-        }
+        // For now, just use text-to-speech instead of API
+        speakText(message.content, advisor.id)
       }
     }
 
@@ -310,7 +285,7 @@ export default function AdvisorsPage() {
                     <span className="text-xs text-gray-500">{message.timestamp.toLocaleTimeString()}</span>
                     {message.role === "assistant" && voiceEnabled && (
                       <Button variant="ghost" size="icon" onClick={() => handlePlayAudio(message)}>
-                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {isSpeaking ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                       </Button>
                     )}
                   </div>
@@ -378,7 +353,17 @@ export default function AdvisorsPage() {
           </div>
         ) : advisorsError ? (
           <div className="text-center py-8">
-            <p className="text-red-400">Error loading advisors: {advisorsError}</p>
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 max-w-md mx-auto">
+              <h3 className="text-red-400 font-bold mb-2">Error Loading Advisors</h3>
+              <p className="text-red-300 text-sm mb-4">{advisorsError}</p>
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="border-red-700 text-red-400 hover:bg-red-900/30"
+              >
+                Retry
+              </Button>
+            </div>
           </div>
         ) : aiAgents && aiAgents.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -389,6 +374,9 @@ export default function AdvisorsPage() {
         ) : (
           <div className="text-center py-8">
             <p className="text-gray-400">No AI advisors available.</p>
+            <Button variant="outline" className="mt-4" asChild>
+              <Link href="/advisors/debug">Debug Page</Link>
+            </Button>
           </div>
         )}
       </div>

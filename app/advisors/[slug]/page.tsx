@@ -4,13 +4,15 @@ import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase"; // Assuming this is correct
 import { sanityClient, urlForImage } from "@/lib/sanity"; // CORRECTED: Import sanityClient and urlForImage directly from lib/sanity.ts
 import Link from "next/link";
+// Correct import for the Button UI component from shadcn/ui
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { PortableText, PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types"; // This import path is correct
 import { Badge } from "@/components/ui/badge"; // ADD THIS LINE
 // Add necessary lucide-react icons here if they are not already imported elsewhere globally.
 // (You might have these imports already in a component that wraps this page, but good to ensure they are here or globally accessible)
-import { Brain, MessageCircle, User, Volume2, VolumeX, Plus, Send, Download, Heart, Share, Play, TrendingUp, DollarSign, BookOpen, FileText, ExternalLink, Network, Globe, Info, Mail, Phone, Button, Upload, Mic, MicOff, ChevronRight, Pause } from "lucide-react";
+import { Brain, MessageCircle, User, Volume2, VolumeX, Plus, Send, Download, Heart, Share, Play, TrendingUp, DollarSign, BookOpen, FileText, ExternalLink, Network, Globe, Info, Mail, Phone, Upload, Mic, MicOff, ChevronRight, Pause } from "lucide-react";
 
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
