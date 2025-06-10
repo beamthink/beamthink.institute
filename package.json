@@ -48,13 +48,5 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.3.3",
     "typescript": "^5"
-  },
-  "resolutions": {
-    "@uiw/codemirror-extensions-basic-setup": "4.21.25",
-    "@uiw/react-codemirror": "4.21.25"
-  },
-  "overrides": {
-    "@uiw/codemirror-extensions-basic-setup": "4.21.25",
-    "@uiw/react-codemirror": "4.21.25"
   }
 }
