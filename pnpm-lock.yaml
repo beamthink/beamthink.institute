@@ -1425,8 +1425,8 @@ packages:
       '@sanity/types': ^3.92.0
       '@types/react': 18 || 19
 
-  '@portabletext/editor@1.52.3':
-    resolution: {integrity: sha512-pgjHAwBfm+bj/lGimmztqB1V+CJTL7KIsIUAdLS8PNHY1RBu/a/rlMVJn1feRSTXQeeweBLj7WpP5j+n7PqPVg==}
+  '@portabletext/editor@1.52.4':
+    resolution: {integrity: sha512-+7Iwp50NzwlS9lPwIhThPfUJ6eJ43ff96cmjP3uLukz1RNyUMRv4lFjD5sfjjUgSMFynQYdlidgHurBzVZW73Q==}
     engines: {node: '>=18'}
     peerDependencies:
       '@sanity/schema': ^3.92.0
@@ -7632,7 +7632,7 @@ snapshots:
       get-random-values-esm: 1.0.2
       lodash: 4.17.21
 
-  '@portabletext/editor@1.52.3(@sanity/schema@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)':
+  '@portabletext/editor@1.52.4(@sanity/schema@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)':
     dependencies:
       '@portabletext/block-tools': 1.1.30(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)
       '@portabletext/patches': 1.1.4
@@ -7651,7 +7651,7 @@ snapshots:
       slate: 0.115.1
       slate-dom: 0.114.0(slate@0.115.1)
       slate-react: 0.114.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(slate-dom@0.114.0(slate@0.115.1))(slate@0.115.1)
-      use-effect-event: 2.0.0(react@19.0.0)
+      use-effect-event: 1.0.2(react@19.0.0)
       xstate: 5.19.4
     transitivePeerDependencies:
       - '@types/react'
@@ -12057,7 +12057,7 @@ snapshots:
       '@dnd-kit/utilities': 3.2.2(react@19.0.0)
       '@juggle/resize-observer': 3.4.0
       '@portabletext/block-tools': 1.1.30(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)
-      '@portabletext/editor': 1.52.3(@sanity/schema@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
+      '@portabletext/editor': 1.52.4(@sanity/schema@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@sanity/types@3.92.0(@types/react@19.0.0)(debug@4.4.1))(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
       '@portabletext/react': 3.2.1(react@19.0.0)
       '@portabletext/toolkit': 2.0.17
       '@rexxars/react-json-inspector': 9.0.1(react@19.0.0)
