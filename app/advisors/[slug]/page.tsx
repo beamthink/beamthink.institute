@@ -1,21 +1,16 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-// Correct imports based on your `lib/sanity.ts` and `lib/supabase.ts`
-import { supabase } from "@/lib/supabase"; // Assuming this is correct
-import { sanityClient, urlForImage } from "@/lib/sanity"; // CORRECTED: Import sanityClient and urlForImage directly from lib/sanity.ts
+import { supabase } from "@/lib/supabase"; 
+import { sanityClient, urlForImage } from "@/lib/sanity"; 
 import Link from "next/link";
-// Correct import for the Button UI component from shadcn/ui
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { PortableText, PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react";
-import { SanityImageSource } from "@sanity/image-url/lib/types/types"; // This import path is correct
-import { Badge } from "@/components/ui/badge"; // ADD THIS LINE
-// Add necessary lucide-react icons here if they are not already imported elsewhere globally.
-// (You might have these imports already in a component that wraps this page, but good to ensure they are here or globally accessible)
+import { SanityImageSource } from "@sanity/image-url/lib/types/types"; 
+import { Badge } from "@/components/ui/badge"; 
 import { Brain, MessageCircle, User, Volume2, VolumeX, Plus, Send, Download, Heart, Share, Play, TrendingUp, DollarSign, BookOpen, FileText, ExternalLink, Network, Globe, Info, Mail, Phone, Upload, Mic, MicOff, ChevronRight, Pause } from "lucide-react";
 
 
-// --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
 // Interface for basic data from Supabase's ai_advisors table
 interface SupabaseAdvisor {
   id: string;
@@ -25,7 +20,10 @@ interface SupabaseAdvisor {
   bio: string; // Short bio
   avatar: string;
   sanity_person_id?: string | null; // The link to Sanity
-  // Add other basic fields from your Supabase ai_advisors table if needed (e.g., specialties, is_active)
+  specialties?: string[] | null; // Ensure this field exists if used in rendering
+  totalContributions?: number | null; // Ensure this field exists if used in rendering
+  birthYear?: number | null; // Ensure this field exists if used in rendering
+  deathYear?: number | null; // Ensure this field exists if used in rendering
 }
 
 // Interface for rich data from Sanity's Person document
@@ -33,16 +31,15 @@ interface SupabaseAdvisor {
 interface SanityPersonData {
   _id: string;
   _type: "person"; // Ensure this matches your actual Sanity schema name
-  // Add firstName/lastName if your Person schema uses them instead of fullName directly
-  firstName?: string;
-  lastName?: string;
-  fullName?: string; // If your Sanity schema has a fullName field
+  fullName?: string; // If your Sanity Person schema uses fullName
+  firstName?: string; // If your Sanity Person schema uses firstName
+  lastName?: string; // If your Sanity Person schema uses lastName
   detailedBio?: any; // PortableText
   timeline?: Array<{ year: number; title: string; description: string; category: string }>;
   media?: Array<{ _type: string; title?: string; description?: string; url?: string; asset?: { _ref: string; url?: string; originalFilename?: string }; tags?: string[]; uploadedBy?: string; uploadedAt?: string }>;
   contributions?: Array<{ _type: string; title?: string; content?: string; contributorName?: string; submittedAt?: string; tags?: string[]; }>;
   quotes?: string[];
-  // Add other rich fields from your Sanity Person schema that you want to display (e.g., birthYear, deathYear)
+  // Add other rich fields from your Sanity Person schema that you want to display
 }
 
 // Combined interface for the page's data
@@ -51,9 +48,8 @@ interface AdvisorPageData {
   sanityData: SanityPersonData | null; // Sanity data is optional
 }
 
-// --- DATA FETCHING FUNCTIONS ---
 async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
-  // --- Step 1: Fetch basic advisor data from Supabase ---
+  // --- Fetch basic advisor data from Supabase ---
   const { data: supabaseAdvisor, error: supabaseError } = await supabase
     .from('ai_advisors')
     .select('*')
@@ -69,21 +65,19 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
     return null;
   }
 
-  // --- Step 2: Fetch rich memorial data from Sanity using sanity_person_id ---
+  // --- Fetch rich memorial data from Sanity using sanity_person_id ---
   let sanityPerson: SanityPersonData | null = null;
   if (supabaseAdvisor.sanity_person_id) {
     try {
+      // Query Sanity for the full Person document using its _id
       const sanityQuery = `*[_type == "person" && _id == $personId][0]{
         _id,
-        fullName, // If your Sanity Person schema uses fullName directly
-        firstName, // If your Sanity Person schema uses firstName
-        lastName,  // If your Sanity Person schema uses lastName
+        fullName, // Or firstName, lastName depending on your Sanity schema
         detailedBio,
         quotes,
         timeline[]{year, title, description, category},
         media[]{_type, title, description, url, asset->{_id, url, originalFilename}, tags, uploadedBy, uploadedAt, approved},
-        contributions[]{_type, title, content, contributorName, contributorEmail, submittedAt, approved, tags},
-        // Add any other rich fields you need from your Sanity Person schema here
+        contributions[]{_type, title, content, contributorName, submittedAt, approved, tags},
       }`;
       sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id });
 
@@ -101,7 +95,6 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
 }
 
 // --- PORTABLE TEXT COMPONENTS (for rendering rich text from Sanity) ---
-// Re-using common components, adjust as needed.
 const portableTextComponents: PortableTextComponents = {
   types: {
     image: ({value}: {value: SanityImageSource & {alt?: string, asset?: {_ref: string}}}) => {
@@ -117,25 +110,22 @@ const portableTextComponents: PortableTextComponents = {
         />
       );
     },
-    // You can add custom types from your blockContent here, e.g., videoAsset for embedded videos
+    // You might also need to handle videoAsset if it's a type in your blockContent
     // videoAsset: ({value}: {value: any}) => { /* ...render video asset... */ },
   },
   marks: {
     link: ({children, value}: PortableTextMarkComponentProps<{ href: string; _type: string }>) => {
-      const rel = !value?.href?.startsWith('/') ? 'noreferrer noopener' : undefined;
+      const rel = !value?.href?.startsWith('/') ? 'noreferrer noopener' : undefined
       return (
         <a href={value?.href} rel={rel} className="text-blue-500 hover:underline">
           {children}
         </a>
-      );
+      )
     },
   },
 };
 
-// --- NEXT.JS PAGE COMPONENT ---
-export default async function AdvisorPage({ params }: AdvisorPageProps) {
-  console.log("🚀 AdvisorPage rendering for slug:", params.slug);
-
+export default async function AdvisorPage({ params }: { params: { slug: string } }) {
   const { supabaseData: advisor, sanityData: richAdvisorData } = await getAdvisorData(params.slug);
 
   if (!advisor) { // If basic advisor not found in Supabase
@@ -143,11 +133,10 @@ export default async function AdvisorPage({ params }: AdvisorPageProps) {
     notFound(); // Triggers Next.js's not-found page
   }
 
-  console.log("✅ Rendering memorial for:", advisor.full_name);
+  console.log("✅ Rendering memorial for:", advisor.full_name); // This line is now correct
 
   // Fallback for avatar if Supabase doesn't have it or it's not a URL
   const advisorAvatar = advisor.avatar && advisor.avatar.startsWith('http') ? advisor.avatar : "/placeholder.svg";
-
 
   return (
     <div className="container mx-auto p-6 bg-gray-950 text-white rounded-lg shadow-xl my-8"> {/* Adjusted bg/text colors */}
@@ -165,9 +154,9 @@ export default async function AdvisorPage({ params }: AdvisorPageProps) {
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-5xl font-extrabold text-white mb-2">{advisor.full_name}</h1> {/* Adjusted text color */}
           <p className="text-xl text-gray-400 mb-2">{advisor.role}</p> {/* Adjusted text color */}
-          <p className="text-md text-gray-400 mb-4">{advisor.bio}</p> {/* Adjusted text color */}
+          <p className="text-gray-400 mb-4">{advisor.bio}</p> {/* Short bio from Supabase */}
 
-          {/* AI Advisor Badges from Supabase data */}
+          {/* AI Advisor Specialties from Supabase data */}
           {advisor.specialties && advisor.specialties.length > 0 && (
             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
               {advisor.specialties.map((specialty, index) => (
@@ -191,121 +180,122 @@ export default async function AdvisorPage({ params }: AdvisorPageProps) {
 
       {/* Rich Content from Sanity Data (only if sanityData exists) */}
       {richAdvisorData ? (
-        <div className="mt-8 space-y-8">
-          {/* Detailed Biography */}
-          {richAdvisorData.detailedBio && (
-            <div className="prose dark:prose-invert lg:prose-lg"> {/* Added dark:prose-invert for dark mode */}
-              <h2 className="text-2xl font-semibold mb-4 text-gray-200">Detailed Biography</h2> {/* Adjusted text color */}
-              <PortableText value={richAdvisorData.detailedBio} components={portableTextComponents} />
-            </div>
-          )}
-
-          {/* Quotes */}
-          {richAdvisorData.quotes && richAdvisorData.quotes.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-200">Notable Quotes</h2> {/* Adjusted text color */}
-              <div className="space-y-3">
-                {richAdvisorData.quotes.map((quote, index) => (
-                  <div key={index} className="border-l-4 border-blue-500 pl-4">
-                    <blockquote className="italic text-gray-300 text-sm mb-2">
-                      "{quote}"
-                    </blockquote>
-                    {/* Voice playback feature - needs local functions */}
-                    {/* If you enable voice, move speakText, isSpeaking, Volume2/X imports here */}
+          <div className="mt-8 space-y-8">
+              {/* Detailed Biography */}
+              {richAdvisorData.detailedBio && (
+                  <div className="prose dark:prose-invert lg:prose-lg"> {/* Added dark:prose-invert for dark mode */}
+                      <h2 className="text-2xl font-semibold mb-4 text-gray-200">Detailed Biography</h2> {/* Adjusted text color */}
+                      <PortableText value={richAdvisorData.detailedBio} components={portableTextComponents} />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Timeline */}
-          {richAdvisorData.timeline && richAdvisorData.timeline.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-200">Life & Career Timeline</h2> {/* Adjusted text color */}
-              <div className="space-y-4">
-                {richAdvisorData.timeline.map((event, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-3 h-3 rounded-full ${
-                          event.category === "education" ? "bg-blue-500" :
-                          event.category === "career" ? "bg-green-500" :
-                          event.category === "achievement" ? "bg-yellow-500" :
-                          event.category === "publication" ? "bg-purple-500" :
-                          "bg-gray-500"
-                        }`} />
-                      {index < richAdvisorData.timeline.length - 1 && <div className="w-px h-16 bg-gray-700 mt-2" />}
-                    </div>
-                    <div className="flex-1 pb-8">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-white font-semibold">{event.year}</span> {/* Adjusted text color */}
-                        <span className="text-gray-400 text-xs">{event.category}</span> {/* Adjusted text color */}
+              {/* Quotes */}
+              {richAdvisorData.quotes && richAdvisorData.quotes.length > 0 && (
+                  <div>
+                      <h2 className="text-2xl font-semibold mb-4 text-gray-200">Notable Quotes</h2> {/* Adjusted text color */}
+                      <div className="space-y-3">
+                          {richAdvisorData.quotes.map((quote, index) => (
+                              <div key={index} className="border-l-4 border-blue-500 pl-4">
+                                  <blockquote className="italic text-gray-300 text-sm mb-2">
+                                      "{quote}"
+                                  </blockquote>
+                                  {/* Voice playback feature - needs local functions (speakText, isSpeaking, Volume2/X) */}
+                                  {/* If you enable voice, ensure relevant state/functions are imported and passed or defined */}
+                              </div>
+                          ))}
                       </div>
-                      <h4 className="text-white font-medium mb-2">{event.title}</h4> {/* Adjusted text color */}
-                      <p className="text-gray-400 text-sm">{event.description}</p> {/* Adjusted text color */}
-                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Media Archive */}
-          {richAdvisorData.media && richAdvisorData.media.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4 text-gray-200">Media Archive</h2> {/* Adjusted text color */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {richAdvisorData.media.map((item, index) => (
-                  <div key={index} className="p-4 border border-gray-700 rounded-lg"> {/* Adjusted border/bg color */}
-                    <h3 className="text-lg font-semibold mb-2 text-white">{item.title}</h3> {/* Adjusted text color */}
-                    <p className="text-gray-400 text-sm mb-2">{item.description}</p> {/* Adjusted text color */}
-                    {item._type === 'image' && item.asset && (
-                      <Image
-                        src={urlForImage(item).width(400).url()}
-                        alt={item.alt || item.title || 'Media image'}
-                        width={400}
-                        height={225}
-                        className="rounded-lg"
-                      />
-                    )}
-                    {item._type === 'file' && item.asset && item.originalFilename && (
-                      <a href={item.asset.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                        Download: {item.originalFilename}
-                      </a>
-                    )}
-                    {item._type === 'video' && item.url && ( // Assuming external video URL
-                        <div className="my-2 aspect-video w-full">
-                            <iframe src={item.url} title={item.title} allowFullScreen className="w-full h-full rounded-lg"></iframe>
-                        </div>
-                    )}
-                    {item._type === 'audio' && item.url && ( // Assuming external audio URL
-                        <audio controls src={item.url} className="w-full my-2"></audio>
-                    )}
+              {/* Timeline */}
+              {richAdvisorData.timeline && richAdvisorData.timeline.length > 0 && (
+                  <div>
+                      <h2 className="text-2xl font-semibold mb-4 text-gray-200">Life & Career Timeline</h2> {/* Adjusted text color */}
+                      <div className="space-y-4">
+                          {richAdvisorData.timeline.map((event, index) => (
+                              <div key={index} className="flex gap-4">
+                                  <div className="flex flex-col items-center">
+                                      <div className={`w-3 h-3 rounded-full ${
+                                          event.category === "education" ? "bg-blue-500" :
+                                          event.category === "career" ? "bg-green-500" :
+                                          event.category === "achievement" ? "bg-yellow-500" :
+                                          event.category === "publication" ? "bg-purple-500" :
+                                          "bg-gray-500"
+                                        }`} />
+                                      {index < richAdvisorData.timeline.length - 1 && <div className="w-px h-16 bg-gray-700 mt-2" />}
+                                  </div>
+                                  <div className="flex-1 pb-8">
+                                      <div className="flex items-center gap-2 mb-1">
+                                          <span className="text-white font-semibold">{event.year}</span> {/* Adjusted text color */}
+                                          <span className="text-gray-400 text-xs">{event.category}</span> {/* Adjusted text color */}
+                                      </div>
+                                      <h4 className="text-white font-medium mb-2">{event.title}</h4> {/* Adjusted text color */}
+                                      <p className="text-gray-400 text-sm">{event.description}</p> {/* Adjusted text color */}
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Contributions */}
-          {richAdvisorData.contributions && richAdvisorData.contributions.length > 0 && (
-              <div>
-                  <h2 className="text-2xl font-semibold mb-4 text-gray-200">Community Contributions</h2> {/* Adjusted text color */}
-                  <div className="space-y-4">
-                      {richAdvisorData.contributions.map((contrib, index) => (
-                          <div key={index} className="p-4 border border-gray-700 rounded-lg"> {/* Adjusted border/bg color */}
-                              <h3 className="text-lg font-semibold mb-2 text-white">{contrib.title}</h3> {/* Adjusted text color */}
-                              <p className="text-gray-400 text-sm mb-2">{contrib.content}</p> {/* Adjusted text color */}
-                              <p className="text-gray-500 text-xs">By {contrib.contributorName} on {new Date(contrib.submittedAt || '').toLocaleDateString()}</p> {/* Adjusted text color */}
-                          </div>
-                      ))}
+              {/* Media Archive */}
+              {richAdvisorData.media && richAdvisorData.media.length > 0 && (
+                  <div>
+                      <h2 className="text-2xl font-semibold mb-4 text-gray-200">Media Archive</h2> {/* Adjusted text color */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {richAdvisorData.media.map((item, index) => (
+                              <div key={index} className="p-4 border border-gray-700 rounded-lg"> {/* Adjusted border/bg color */}
+                                  <h3 className="text-lg font-semibold mb-2 text-white">{item.title}</h3> {/* Adjusted text color */}
+                                  <p className="text-gray-400 text-sm mb-2">{item.description}</p> {/* Adjusted text color */}
+                                  {item._type === 'image' && item.asset && (
+                                      <Image
+                                          src={urlForImage(item).width(400).url()}
+                                          alt={item.alt || item.title || 'Media image'}
+                                          width={400}
+                                          height={225}
+                                          className="rounded-lg"
+                                      />
+                                  )}
+                                  {item._type === 'file' && item.asset && item.originalFilename && (
+                                      <a href={item.asset.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                                          Download: {item.originalFilename}
+                                      </a>
+                                  )}
+                                  {item._type === 'video' && item.url && ( // Assuming external video URL
+                                      <div className="my-2 aspect-video w-full">
+                                          <iframe src={item.url} title={item.title} allowFullScreen className="w-full h-full rounded-lg"></iframe>
+                                      </div>
+                                  )}
+                                  {item._type === 'audio' && item.url && ( // Assuming external audio URL
+                                      <audio controls src={item.url} className="w-full my-2"></audio>
+                                  )}
+                              </div>
+                          ))}
+                      </div>
                   </div>
-              </div>
-          )}
-        </div>
+              )}
+
+              {/* Contributions */}
+              {richAdvisorData.contributions && richAdvisorData.contributions.length > 0 && (
+                  <div>
+                      <h2 className="text-2xl font-semibold mb-4 text-gray-200">Community Contributions</h2> {/* Adjusted text color */}
+                      <div className="space-y-4">
+                          {richAdvisorData.contributions.map((contrib, index) => (
+                              <div key={index} className="p-4 border border-gray-700 rounded-lg"> {/* Adjusted border/bg color */}
+                                  <h3 className="text-lg font-semibold mb-2 text-white">{contrib.title}</h3> {/* Adjusted text color */}
+                                  <p className="text-gray-400 text-sm mb-2">{contrib.content}</p> {/* Adjusted text color */}
+                                  <p className="text-gray-500 text-xs">By {contrib.contributorName} on {new Date(contrib.submittedAt || '').toLocaleDateString()}</p> {/* Adjusted text color */}
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              )}
+
+          </div>
       ) : (
-        <div className="mt-8 p-4 bg-gray-800 rounded-lg text-center text-gray-300"> {/* Adjusted bg/text colors */}
-            Detailed memorial content will be available once Sanity is configured and linked.
-        </div>
+          <div className="mt-8 p-4 bg-gray-800 rounded-lg text-center text-gray-300"> {/* Adjusted bg/text colors */}
+              Detailed memorial content will be available once Sanity is configured and linked.
+          </div>
       )}
 
       {/* Back Button */}
@@ -317,39 +307,3 @@ export default async function AdvisorPage({ params }: AdvisorPageProps) {
     </div>
   )
 }
-
-// Static generation for known advisors
-export async function generateStaticParams() {
-  try {
-    console.log("📋 Generating static params...")
-
-    // Ensure supabase is available here
-    if (!supabase) {
-      console.warn("Supabase client not initialized in generateStaticParams. Skipping static params generation.");
-      return [];
-    }
-
-    // Return known advisor slugs for static generation
-    const { data: advisors, error } = await supabase
-      .from('ai_advisors')
-      .select('slug')
-      .eq('is_active', true); // Only generate pages for active advisors
-
-    if (error) {
-      console.error('Error fetching slugs for generateStaticParams:', error);
-      return []; // Return empty array on error
-    }
-    if (!advisors) {
-        return [];
-    }
-
-    return advisors.map((advisor: { slug: string }) => ({
-      slug: advisor.slug,
-    }));
-  } catch (error) {
-    console.error("❌ Error in generateStaticParams:", error);
-    return [];
-  }
-}
-
-export const revalidate = 60; // Revalidate every 60 seconds (or 0 for on-demand revalidation if configured)
