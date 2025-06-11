@@ -107,14 +107,14 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
               <div className="flex flex-col md:flex-row items-start gap-8">
                 <div className="flex-shrink-0">
                   <Avatar className="w-32 h-32 border-4 border-gray-600">
-                    <AvatarImage
-                      src="/placeholder.svg?height=128&width=128&text=Dr.+Minerva"
-                      alt={basic.full_name}
-                      onError={(e) => {
-                        // Fallback if image fails to load
-                        e.currentTarget.style.display = "none"
-                      }}
-                    />
+                  <AvatarImage
+                  src={basic.avatar || "/placeholder.svg?height=128&width=128&text=Dr.+Minerva"} // Use basic.avatar
+                  alt={basic.full_name}
+                  onError={(e) => {
+                  // Fallback if image fails to load (useful if basic.avatar is empty or invalid)
+                  e.currentTarget.src = "/placeholder.svg?height=128&width=128&text=No+Image"; // A generic fallback
+                  }}
+                />
                     <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-500 to-purple-600">
                       {basic.full_name
                         .split(" ")
@@ -242,9 +242,58 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
             </Card>
           </TabsContent>
 
-          {/* Community Memories Tab */}
+
+          {/* Community Memories Tab (Directly rendering richAdvisorData.media for now) */}
           <TabsContent value="memories">
-            <CommunityMemories advisorSlug={basic.slug} refreshTrigger={refreshTrigger} />
+            <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-white">Community Memories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {richAdvisorData?.media && richAdvisorData.media.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {richAdvisorData.media.map((item, index) => (
+                      <div key={index} className="p-4 border border-gray-700 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2 text-white">{item.title}</h3>
+                        <p className="text-gray-400 text-sm mb-2">{item.description}</p>
+
+                        {/* Rendering logic based on item.type (from Sanity schema) */}
+                        {item.type === 'Image' && item.asset && ( // Check item.type, not _type
+                            <Image
+                                src={urlForImage(item).width(400).url()}
+                                alt={item.alt || item.title || 'Media image'}
+                                width={400}
+                                height={225}
+                                className="rounded-lg"
+                            />
+                        )}
+                        {item.type === 'Document' && item.asset && item.asset.originalFilename && (
+                            <a href={item.asset.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                                Download: {item.originalFilename}
+                            </a>
+                        )}
+                        {item.type === 'Video' && item.url && ( // Assuming external video URL
+                            <div className="my-2 aspect-video w-full">
+                                <iframe src={item.url} title={item.title} allowFullScreen className="w-full h-full rounded-lg"></iframe>
+                            </div>
+                        )}
+                        {item.type === 'Audio' && item.url && ( // Assuming external audio URL
+                            <audio controls src={item.url} className="w-full my-2"></audio>
+                        )}
+                        {item.type === 'Video' && item.asset && item.asset.url && ( // For uploaded video files
+                          <video controls src={item.asset.url} className="w-full my-2 rounded-lg"></video>
+                        )}
+                        {item.type === 'Audio' && item.asset && item.asset.url && ( // For uploaded audio files
+                          <audio controls src={item.asset.url} className="w-full my-2"></audio>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-center">No community memories found yet. Be the first to contribute!</p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Legacy Tab */}
