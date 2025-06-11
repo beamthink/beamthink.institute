@@ -4,6 +4,10 @@ import { supabase } from "@/lib/supabase"
 export async function GET() {
   try {
     console.log("🔍 Fetching advisors from Supabase...")
+    console.log("DEBUG: NEXT_PUBLIC_SUPABASE_URL =", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "NOT SET");
+    console.log("DEBUG: SUPABASE_SERVICE_ROLE_KEY =", process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "NOT SET");
+    // Add other checks if you suspect other variables are missing
+    console.log("DEBUG: NEXT_PUBLIC_SANITY_PROJECT_ID =", process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ? "SET" : "NOT SET");
 
     // Fetch from Supabase only for now (Sanity integration can be added later)
     const { data: supabaseAdvisors, error: supabaseError } = await supabase
