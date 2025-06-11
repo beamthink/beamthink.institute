@@ -79,7 +79,7 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
         media[]{_type, title, description, url, asset->{_id, url, originalFilename}, tags, uploadedBy, uploadedAt, approved},
         contributions[]{_type, title, content, contributorName, submittedAt, approved, tags},
       }`;
-      sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id });
+      sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id! });
 
       if (!sanityPerson) {
         console.warn(`Sanity Person document not found for ID: ${supabaseAdvisor.sanity_person_id}. Rich content will be missing.`);
