@@ -3,13 +3,14 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "sonner"
 import "./globals.css"
+import { NotificationCenter } from "@/components/notification-center"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "BEAM OS Dashboard",
   description: "Community-owned infrastructure and cooperative economics platform",
-  generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -40,6 +41,7 @@ export default function RootLayout({
             className: "glass-toast",
           }}
         />
+        <NotificationCenter />
       </body>
     </html>
   )
