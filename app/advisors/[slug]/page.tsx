@@ -7,6 +7,7 @@ import AdvisorMemorialClient from "@/components/advisor-memorial-client"
 import Image from "next/image"
 import type { PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react"
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
+import { useEffect, useState } from "react"
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
 
@@ -159,10 +160,23 @@ const portableTextComponents: PortableTextComponents = {
 }
 
 // --- NEXT.JS PAGE COMPONENT ---
-export default async function AdvisorPage({ params }: { params: { slug: string } }) {
+export default function AdvisorPage({ params }: { params: { slug: string } }) {
   console.log("🚀 AdvisorPage rendering for slug:", params.slug)
+  const [advisorData, setAdvisorData] = useState<AdvisorPageData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const advisorData = await getAdvisorData(params.slug)
+  useEffect(() => {
+    const fetchAdvisorData = async () => {
+      const advisorData = await getAdvisorData(params.slug)
+      setAdvisorData(advisorData)
+      setIsLoading(false)
+    }
+    fetchAdvisorData()
+  }, [params.slug])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   if (!advisorData) {
     console.log("❌ No advisor data found, showing 404")
