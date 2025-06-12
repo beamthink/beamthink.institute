@@ -6,12 +6,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // For server-side operations
-export const supabaseAdmin = createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
+// Initialize supabaseAdmin ONLY on the server
+export const supabaseAdmin =
+  typeof window === 'undefined' // Check if code is running on the server
+    ? createClient(supabaseUrl, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      })
+    : undefined; // Set to undefined if on the client
 
 // Database Types (updated to match the fixed schema)
 export interface Database {
