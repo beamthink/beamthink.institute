@@ -1,24 +1,23 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
-import { sanityClient, urlForImage } from "@/lib/sanity"; // CORRECTED: Sanity client and urlForImage helper
+import { sanityClient, urlForImage } from "@/lib/sanity";
 import Link from "next/link";
 import Image from "next/image";
 import { PortableText, PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react";
 import { SanityImageSource } from "@sanity/image-url/lib/types/types";
 
-// --- Import necessary Lucide React icons (ensure all are imported if used) ---
+// --- Import necessary Lucide React icons ---
 import { Brain, MessageCircle, User, Volume2, VolumeX, Plus, Send, Download, Heart, Share, Play, TrendingUp, DollarSign, BookOpen, FileText, ExternalLink, Network, Globe, Info, Mail, Phone, Upload, Mic, MicOff, ChevronRight, Pause, ArrowLeft, Calendar, Quote, Camera } from "lucide-react";
-// Import shadcn/ui components needed (ensure all are imported)
+// Import shadcn/ui components needed
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea"; // From BeamOSDashboard
-import { Input } from "@/components/ui/input"; // From BeamOSDashboard
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"; // From BeamOSDashboard
-
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
 
@@ -32,8 +31,8 @@ interface SupabaseAdvisor {
   avatar: string; // URL string
   sanity_person_id?: string | null; // The link to Sanity (TEXT in Supabase)
   specialties?: string[] | null; // TEXT[] in Supabase
-  // totalContributions is not in Supabase, will be from Sanity or calculated.
-  // birthYear, deathYear are not in Supabase.
+  // Note: birthYear, deathYear, totalContributions are NOT in your current ai_advisors SQL schema.
+  // They will be undefined if fetched from Supabase.
 }
 
 // Interface for rich data from Sanity's Person document (Aligned with person.ts schema)
@@ -79,7 +78,7 @@ interface SanityPersonData {
   keyWorks?: string[]; // array, of: [{type: 'string'}]
   birthYear?: number; // From Sanity person.ts
   deathYear?: number; // From Sanity person.ts
-  specialties?: string[]; // From Sanity person.ts (if populated)
+  // specialties?: string[]; // Specialties are in SupabaseAdvisor, not SanityPersonData per current schema
 }
 
 // Combined interface for the page's data
@@ -119,13 +118,13 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
         quotes,
         timeline[]{year, title, description, category},
         media[]{_type, title, description, type, url, asset->{_id, url, originalFilename}, alt, tags, uploadedBy, uploadedAt, approved}, // Fetch 'type' and 'alt' for media
-        contributions[]{_type, title, content, contributorName, contributorEmail, submittedAt, approved, tags, media[]}, // Fetch 'type' for contributions
+        contributions[]{_type, title, content, contributorName, contributorEmail, submittedAt, approved, tags, media[]},
         chatPersonality,
         voiceCharacteristics,
         keyWorks,
         birthYear,
         deathYear,
-        specialties, // Include specialties if you want them from Sanity for rich data
+        // specialties, // specialties are from SupabaseAdvisor, not SanityPersonData per current schema
       }`;
       sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id });
 
@@ -208,14 +207,22 @@ export default async function AdvisorPage({ params }: { params: { slug: string }
         </div>
         <div className="flex-1 text-center md:text-left">
           <h1 className="text-5xl font-extrabold text-white mb-2">{advisor.full_name}</h1>
-          <p className="text-xl text-gray-300 mb-2">{advisor.role}</p>
+          <p className="text-xl text-gray-400 mb-2">{advisor.role}</p>
           <p className="text-gray-400 flex items-center gap-2">
-            <Camera className="h-4 w-4" /> {/* Assuming Camera is the icon for "AI Memorial Agent" */}
+            <Calendar className="h-4 w-4" /> {/* Changed from Camera to Calendar icon, as per the original plan */}
             AI Memorial Agent
           </p>
 
-          {/* AI Advisor Specialties from Supabase data */}
-          {advisor.specialties && advisor.specialties.length > 0 && ( // specialties is from SupabaseAdvisor
+          {/* AI Advisor Specialties from Sanity data (if available) or Supabase (if it's in both) */}
+          {richAdvisorData?.specialties && richAdvisorData.specialties.length > 0 ? ( // Use Sanity data if available
+            <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+              {richAdvisorData.specialties.map((specialty, index) => (
+                <Badge key={index} variant="secondary" className="bg-gray-800 text-gray-300">
+                  {specialty}
+                </Badge>
+              ))}
+            </div>
+          ) : advisor.specialties && advisor.specialties.length > 0 ? ( // Fallback to Supabase data if available
             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
               {advisor.specialties.map((specialty, index) => (
                 <Badge key={index} variant="secondary" className="bg-gray-800 text-gray-300">
@@ -223,7 +230,7 @@ export default async function AdvisorPage({ params }: { params: { slug: string }
                 </Badge>
               ))}
             </div>
-          )}
+          ) : null}
 
           {/* Actions - Chat and View */}
           <div className="flex gap-2 justify-center md:justify-start">
@@ -295,4 +302,97 @@ export default async function AdvisorPage({ params }: { params: { slug: string }
               {richAdvisorData?.timeline && richAdvisorData.timeline.length > 0 ? (
                 <div className="space-y-6">
                   {richAdvisorData.timeline.map((event, index) => (
-                    <div key={index}
+                    <div key={index} className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                        {event.year}
+                      </div>
+                      <div className="flex-grow">
+                        <h3 className="text-white text-lg font-semibold mb-2">{event.title}</h3>
+                        <p className="text-gray-300">{event.description}</p>
+                        <Badge variant="outline" className="mt-2 border-gray-600 text-gray-400 capitalize">
+                          {event.category}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // Fallback to mock data if no detailed.timeline from Sanity
+                <div className="text-center py-8">
+                  <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400 mb-2">No timeline events yet.</p>
+                  <p className="text-gray-500 text-sm">Contribute timeline events using the floating action button.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Quotes Tab */}
+        <TabsContent value="quotes">
+          <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Quote className="h-5 w-5" />
+                Notable Quotes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {richAdvisorData?.quotes && richAdvisorData.quotes.length > 0 ? (
+                <div className="space-y-6">
+                  {richAdvisorData.quotes.map((quote, index) => (
+                    <blockquote key={index} className="border-l-4 border-blue-500 pl-6 py-4">
+                      <p className="text-gray-300 text-lg italic mb-2">"{quote}"</p>
+                      <cite className="text-gray-400">— {advisor.full_name}</cite>
+                    </blockquote>
+                  ))}
+                </div>
+              ) : (
+                // Fallback to mock data if no detailed.quotes from Sanity
+                <div className="text-center py-8">
+                  <MessageCircle className="h-12 w-12 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400 mb-2">No quotes available yet.</p>
+                  <p className="text-gray-500 text-sm">Contribute memories that include memorable quotes!</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+
+        {/* Live Contributions Feed Tab */}
+        <TabsContent value="contributions">
+          <LiveContributionsFeed advisorSlug={advisor.slug} refreshTrigger={refreshTrigger} />
+        </TabsContent>
+
+        {/* Legacy Tab */}
+        <TabsContent value="legacy">
+          <Card className="bg-gray-900/50 border-gray-700 rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-white">Impact & Influence</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Placeholders for actual data */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-white font-medium mb-2">Living Memorial</h4>
+                  <p className="text-gray-300 text-sm">
+                    This memorial grows with community contributions - photos, memories, timeline events, and
+                    documents.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-white font-medium mb-2">AI Agent</h4>
+                  <p className="text-gray-300 text-sm">
+                    Chat with the AI version to get insights based on their documented work and philosophy.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-white font-medium mb-2">Community Archive</h4>
+                  <p className="text-gray-300 text-sm">
+                    A collaborative space where anyone can contribute to preserving and sharing their legacy.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
