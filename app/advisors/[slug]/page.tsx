@@ -165,7 +165,7 @@ export default async function AdvisorPage({ params }: { params: { slug: string }
     console.log("❌ No advisor data found, showing 404")
     notFound()
   }
-
+// test commit to verify git identity
   const { supabaseData: advisor, sanityData: richAdvisorData } = advisorData
 
   console.log("✅ Rendering memorial for:", advisor.full_name)
