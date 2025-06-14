@@ -1,22 +1,32 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Clock, User, Camera, FileText, Heart, Calendar } from "lucide-react"
+import { Clock, User, Camera, FileText, Heart, Calendar, Download } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { urlForImage } from "@/lib/sanity"
+import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
 
 interface LiveContribution {
-  id: string
-  type: "photo" | "timeline" | "memory" | "document"
+  _id: string
+  type: string
   title: string
   content?: string
   contributorName: string
   submittedAt: string
   timelineYear?: number
   timelineCategory?: string
-  mediaUrl?: string
-  mediaType?: string
+  media?: Array<{
+    _type: string
+    title?: string
+    type?: string
+    asset?: {
+      _ref: string
+      url?: string
+    }
+  }>
 }
 
 interface LiveContributionsFeedProps {
@@ -34,40 +44,10 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
 
   const fetchContributions = async () => {
     try {
-      // Mock data for demo - in production, fetch from API
-      const mockContributions: LiveContribution[] = [
-        {
-          id: "1",
-          type: "photo",
-          title: "Dr. Haugabrooks at community meeting",
-          contributorName: "Sarah Johnson",
-          submittedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-          mediaUrl: "/placeholder.svg?height=200&width=300&text=Community+Meeting",
-          mediaType: "image",
-        },
-        {
-          id: "2",
-          type: "timeline",
-          title: "Founded Community Land Trust",
-          content:
-            "Established the first community land trust in the region, securing affordable housing for 50 families.",
-          contributorName: "Michael Chen",
-          submittedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
-          timelineYear: 1987,
-          timelineCategory: "achievement",
-        },
-        {
-          id: "3",
-          type: "memory",
-          title: "Working together on the Auburn Avenue project",
-          content:
-            "I remember Dr. Haugabrooks spending hours listening to community members in the barbershop, really understanding what people needed before proposing any solutions.",
-          contributorName: "James Washington",
-          submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-        },
-      ]
-
-      setContributions(mockContributions)
+      const response = await fetch(`/api/contributions?advisorSlug=${advisorSlug}`)
+      if (!response.ok) throw new Error('Failed to fetch contributions')
+      const data = await response.json()
+      setContributions(data.contributions)
     } catch (error) {
       console.error("Error fetching contributions:", error)
     } finally {
@@ -78,6 +58,7 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
   const getContributionIcon = (type: string) => {
     switch (type) {
       case "photo":
+      case "media":
         return <Camera className="h-4 w-4" />
       case "timeline":
         return <Calendar className="h-4 w-4" />
@@ -93,6 +74,7 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
   const getContributionColor = (type: string) => {
     switch (type) {
       case "photo":
+      case "media":
         return "border-blue-500 text-blue-400"
       case "timeline":
         return "border-green-500 text-green-400"
@@ -116,6 +98,23 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
     if (diffInDays < 7) return `${diffInDays}d ago`
     return date.toLocaleDateString()
   }
+
+  const handleDownload = async (imageUrl: string, title: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title || 'image'}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -146,7 +145,7 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
           <div className="space-y-4">
             {contributions.map((contribution) => (
               <div
-                key={contribution.id}
+                key={contribution._id}
                 className="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
               >
                 <div className="flex-shrink-0">
@@ -189,13 +188,33 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
                     </div>
                   )}
 
-                  {contribution.mediaUrl && contribution.type === "photo" && (
-                    <div className="mt-2">
-                      <img
-                        src={contribution.mediaUrl || "/placeholder.svg"}
-                        alt={contribution.title}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
+                  {contribution.media && contribution.media.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      {contribution.media.map((media, index) => (
+                        media.asset && (
+                          <div key={index} className="relative group">
+                            <img
+                              src={urlForImage(media.asset as SanityImageSource).width(800).url() || "/placeholder.svg"}
+                              alt={media.title || "Media"}
+                              className="w-full h-48 md:h-64 object-cover rounded-lg"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => handleDownload(
+                                  urlForImage(media.asset as SanityImageSource).url() || "",
+                                  media.title || "image"
+                                )}
+                                className="flex items-center gap-2"
+                              >
+                                <Download className="h-4 w-4" />
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        )
+                      ))}
                     </div>
                   )}
 

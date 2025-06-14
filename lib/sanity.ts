@@ -5,7 +5,7 @@ import type { SanityImageSource } from "@sanity/image-url/lib/types/types" // AD
 // --- Sanity Client Configuration ---
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID // Use projectId directly
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production"
-const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-10-28" // Consistent API version
+const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2025-06-13" // Consistent API version
 const token = process.env.SANITY_API_READ_TOKEN || undefined // Use read token for client-side fetches
 
 if (!projectId || !dataset) {
@@ -67,7 +67,6 @@ export interface SanityProject {
   raised: number;
   media?: { asset: { _ref: string; _type: "reference" } }[];
   _createdAt: string;
-  _updatedAt: string;
   _updatedAt: string;
 }
 

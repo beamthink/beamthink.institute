@@ -7,7 +7,7 @@ export default defineConfig({
   name: "default",
   title: "BEAM OS Memorials",
 
-  projectId: "your-project-id-here", // Replace with your actual project ID
+  projectId: "2025-06-13", // Replace with your actual project ID
   dataset: "production",
 
   plugins: [deskTool(), visionTool()],

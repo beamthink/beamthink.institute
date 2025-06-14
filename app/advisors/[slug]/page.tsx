@@ -1,5 +1,3 @@
-"use client"
-
 import { notFound } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { sanityClient } from "@/lib/sanity"
@@ -7,7 +5,7 @@ import AdvisorMemorialClient from "@/components/advisor-memorial-client"
 import Image from "next/image"
 import type { PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react"
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
-import { useEffect, useState } from "react"
+import { urlForImage } from "@/lib/sanity"
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
 
@@ -128,7 +126,7 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
   return { supabaseData: supabaseAdvisor, sanityData: sanityPerson }
 }
 
-// --- PORTABLE TEXT COMPONENTS (for rendering rich text from Sanity) ---
+// Move portableTextComponents to a separate file
 const portableTextComponents: PortableTextComponents = {
   types: {
     image: ({ value }: { value: SanityImageSource & { alt?: string; asset?: { _ref: string } } }) => {
@@ -136,7 +134,7 @@ const portableTextComponents: PortableTextComponents = {
       return (
         <Image
           className="w-full h-auto my-4 rounded-lg"
-          src={value.asset.url || "/placeholder.svg"}
+          src={urlForImage(value).url() || "/placeholder.svg"}
           alt={value.alt || "Image"}
           width={800}
           height={450}
@@ -144,8 +142,6 @@ const portableTextComponents: PortableTextComponents = {
         />
       )
     },
-    // You can add custom types if you have them in blockContent (e.g., videoAsset for embedded videos)
-    // videoAsset: ({value}: {value: any}) => { /* ...render video asset... */ },
   },
   marks: {
     link: ({ children, value }: PortableTextMarkComponentProps<{ href: string; _type: string }>) => {
@@ -159,24 +155,11 @@ const portableTextComponents: PortableTextComponents = {
   },
 }
 
-// --- NEXT.JS PAGE COMPONENT ---
-export default function AdvisorPage({ params }: { params: { slug: string } }) {
+// Server Component
+export default async function AdvisorPage({ params }: { params: { slug: string } }) {
   console.log("🚀 AdvisorPage rendering for slug:", params.slug)
-  const [advisorData, setAdvisorData] = useState<AdvisorPageData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchAdvisorData = async () => {
-      const advisorData = await getAdvisorData(params.slug)
-      setAdvisorData(advisorData)
-      setIsLoading(false)
-    }
-    fetchAdvisorData()
-  }, [params.slug])
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  
+  const advisorData = await getAdvisorData(params.slug)
 
   if (!advisorData) {
     console.log("❌ No advisor data found, showing 404")
@@ -187,7 +170,6 @@ export default function AdvisorPage({ params }: { params: { slug: string } }) {
 
   console.log("✅ Rendering memorial for:", advisor.full_name)
 
-  // Pass the data to the client component
   return (
     <AdvisorMemorialClient
       advisorData={{

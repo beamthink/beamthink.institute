@@ -243,12 +243,12 @@ export default function AdvisorsPage() {
           <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/advisors/${advisor.slug}`}>
+                <TooltipTrigger asChild>
+                  <Link href={`/advisors/${advisor.slug}`}>
+                    <Button variant="outline" size="sm">
                       <Eye className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                    </Button>
+                  </Link>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Visit Memorial</p>
@@ -257,7 +257,7 @@ export default function AdvisorsPage() {
             </TooltipProvider>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" onClick={toggleVoice}>
                     {voiceEnabled ? (
                       <Volume2 className="h-5 w-5 text-gray-400" />
@@ -309,7 +309,7 @@ export default function AdvisorsPage() {
             />
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button variant="secondary" onClick={() => handleSendMessage(advisor.id)}>
                     <Send className="h-4 w-4 mr-2" />
                     Send

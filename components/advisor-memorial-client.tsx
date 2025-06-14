@@ -6,7 +6,22 @@ import Image from "next/image"
 import { urlForImage } from "@/lib/sanity"
 import { PortableText, type PortableTextComponents, type PortableTextMarkComponentProps } from "@portabletext/react"
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
-import type SpeechRecognition from "speech-recognition"
+
+// Web Speech API types
+type SpeechRecognition = typeof window.SpeechRecognition extends undefined
+  ? typeof window.webkitSpeechRecognition
+  : typeof window.SpeechRecognition
+
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList
+  resultIndex: number
+  interpretation: any
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string
+  message: string
+}
 
 // Import Lucide React icons
 import { ArrowLeft, Quote, MessageCircle, Camera } from "lucide-react"
@@ -49,6 +64,7 @@ interface SanityPersonData {
     description?: string
     url?: string
     asset?: { _ref: string; url?: string; originalFilename?: string }
+    alt?: string
     tags?: string[]
     uploadedBy?: string
     uploadedAt?: string
@@ -69,14 +85,16 @@ interface SanityPersonData {
   keyWorks?: string[]
 }
 
+// --- REMOVED portableTextComponents FROM PROPS INTERFACE ---
 interface AdvisorMemorialClientProps {
   advisorData: {
     basic: SupabaseAdvisor
     detailed: SanityPersonData | null
   }
+  // portableTextComponents: PortableTextComponents; // <--- REMOVED THIS LINE
 }
 
-// --- PORTABLE TEXT COMPONENTS ---
+// --- PORTABLE TEXT COMPONENTS (DEFINED LOCALLY IN THIS CLIENT COMPONENT FILE) ---
 const portableTextComponents: PortableTextComponents = {
   types: {
     image: ({ value }: { value: SanityImageSource & { alt?: string; asset?: { _ref: string } } }) => {
@@ -105,7 +123,8 @@ const portableTextComponents: PortableTextComponents = {
   },
 }
 
-export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialClientProps) {
+// --- UPDATED COMPONENT FUNCTION SIGNATURE ---
+export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialClientProps) { // <--- REMOVED portableTextComponents FROM HERE
   const { basic, detailed } = advisorData
   const [activeTab, setActiveTab] = useState("overview")
   const [showContributionModal, setShowContributionModal] = useState(false)
@@ -131,13 +150,13 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
         recognitionRef.current.interimResults = false
         recognitionRef.current.lang = "en-US"
 
-        recognitionRef.current.onresult = (event) => {
+        recognitionRef.current.onresult = (event: any) => {
           const transcript = event.results[0][0].transcript
           setIsListening(false)
           toast.success("Speech recognized.")
         }
 
-        recognitionRef.current.onerror = (event) => {
+        recognitionRef.current.onerror = (event: any) => {
           console.error("Speech recognition error:", event.error)
           setIsListening(false)
           toast.error("Speech recognition error. Please try again.")
@@ -303,6 +322,7 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
                 </CardHeader>
                 <CardContent>
                   <div className="prose prose-invert max-w-none">
+                    {/* COMPONENTS PROP NOW REFERS TO THE LOCALLY DEFINED ONE */}
                     <PortableText value={detailed.detailedBio} components={portableTextComponents} />
                   </div>
                 </CardContent>
@@ -351,7 +371,7 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
                   <div className="text-center py-8">
                     <Camera className="h-12 w-12 text-gray-600 mx-auto mb-3" />
                     <p className="text-gray-400 mb-2">No timeline events yet.</p>
-                    <p className="text-gray-500 text-sm">Use the floating action button to add timeline events!</p>
+                    <p className="text-500 text-sm">Use the floating action button to add timeline events!</p>
                   </div>
                 )}
               </CardContent>

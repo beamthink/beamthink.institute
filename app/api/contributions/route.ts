@@ -1,7 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@sanity/client"
+import { supabase } from "@/lib/supabase"
 
 // Mock file storage - in production you'd use Vercel Blob, Supabase Storage, or similar
 const mockFileStorage = new Map<string, { url: string; name: string; type: string; size: number }>()
+
+// Create a read-only Sanity client
+const sanityClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  apiVersion: "2024-03-01",
+  useCdn: true,
+})
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,64 +94,45 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const advisorSlug = searchParams.get("advisorSlug")
 
-    // Mock contributions data - in production, fetch from Supabase
-    const mockContributions = [
-      {
-        id: "contrib-1",
-        title: "Working with Dr. Haugabrooks in Atlanta",
-        description:
-          "I had the privilege of working with Dr. Haugabrooks on the Auburn Avenue project in the late 1970s. What struck me most was her ability to listen—really listen—to community members. She would spend hours in barbershops, beauty salons, and church basements, not talking about her plans, but asking people about their dreams for their neighborhood.",
-        contributorName: "James Washington",
-        contributorEmail: "jwashington@example.com",
-        advisorSlug: "minerva-haugabrooks",
-        tags: ["personal story", "methodology", "Atlanta", "1970s"],
-        files: [
-          {
-            id: "file-1",
-            name: "community-meeting-1978.jpg",
-            type: "image",
-            url: "/placeholder.svg?height=300&width=400&text=Community+Meeting+1978",
-            size: 245760,
-          },
-          {
-            id: "file-2",
-            name: "project-notes.pdf",
-            type: "document",
-            url: "/placeholder.svg?height=300&width=400&text=Project+Notes",
-            size: 1048576,
-          },
-        ],
-        submittedAt: "2024-01-15T10:30:00Z",
-        approved: true,
-      },
-      {
-        id: "contrib-2",
-        title: "Voice Recording: Memories of Dr. Haugabrooks",
-        description:
-          "A voice recording sharing memories of working with Dr. Haugabrooks on community development projects in Birmingham.",
-        contributorName: "Maria Rodriguez",
-        contributorEmail: "mrodriguez@example.com",
-        advisorSlug: "minerva-haugabrooks",
-        tags: ["voice recording", "Birmingham", "community development"],
-        files: [
-          {
-            id: "file-3",
-            name: "memories-recording.wav",
-            type: "audio",
-            url: "/placeholder.svg?height=300&width=400&text=Audio+Recording",
-            size: 2097152,
-          },
-        ],
-        submittedAt: "2024-01-20T14:15:00Z",
-        approved: true,
-      },
-    ]
+    if (!advisorSlug) {
+      return NextResponse.json({ error: "Missing advisorSlug parameter" }, { status: 400 })
+    }
 
-    const filteredContributions = advisorSlug
-      ? mockContributions.filter((c) => c.advisorSlug === advisorSlug)
-      : mockContributions
+    // Get the advisor's Sanity ID from Supabase
+    const { data: advisor } = await supabase
+      .from("ai_advisors")
+      .select("sanity_person_id")
+      .eq("slug", advisorSlug)
+      .single()
 
-    return NextResponse.json({ contributions: filteredContributions })
+    if (!advisor?.sanity_person_id) {
+      return NextResponse.json({ error: "Advisor not found" }, { status: 404 })
+    }
+
+    // Fetch contributions from Sanity
+    const query = `*[_type == "person" && _id == $personId][0]{
+      contributions[]{
+        _id,
+        type,
+        title,
+        content,
+        contributorName,
+        submittedAt,
+        timelineYear,
+        timelineCategory,
+        media[]{
+          _type,
+          title,
+          type,
+          asset->
+        }
+      }
+    }`
+
+    const result = await sanityClient.fetch(query, { personId: advisor.sanity_person_id })
+    const contributions = result?.contributions || []
+
+    return NextResponse.json({ contributions })
   } catch (error) {
     console.error("Error fetching contributions:", error)
     return NextResponse.json({ error: "Failed to fetch contributions" }, { status: 500 })
