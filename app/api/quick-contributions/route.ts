@@ -71,35 +71,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle different contribution types
-    let contributionData: any = {
-      _type: "contribution",
-      contributorName,
-      submittedAt: new Date().toISOString(),
-      approved: false,
-    }
+    let contributionData: any;
 
     try {
       if (type === "photo") {
         const file = formData.get("file") as File;
         const caption = formData.get("caption") as string;
+        const description = formData.get("description") as string;
 
         if (file) {
           const asset = await uploadToSanity(file, 'image');
 
           contributionData = {
-            ...contributionData,
-            type: "media",
+            _type: "contribution",
+            type: "photo",
             title: caption || "Photo contribution",
-            content: caption || "",
-            media: [{
-              _type: "object",
-              title: caption || file.name,
-              type: "image",
+            content: description || "",
+            image: {
+              _type: "image",
               asset: {
                 _type: "reference",
                 _ref: asset._id
               }
-            }]
+            },
+            caption: caption || file.name,
+            contributorName,
+            submittedAt: new Date().toISOString(),
+            approved: false
           }
         }
       } else if (type === "timeline") {
@@ -109,22 +107,28 @@ export async function POST(request: NextRequest) {
         const description = formData.get("description") as string;
 
         contributionData = {
-          ...contributionData,
+          _type: "contribution",
           type: "timeline",
           title,
           content: description,
           timelineYear: Number.parseInt(year),
           timelineCategory: category,
+          contributorName,
+          submittedAt: new Date().toISOString(),
+          approved: false
         }
       } else if (type === "memory") {
         const title = formData.get("title") as string;
         const content = formData.get("content") as string;
 
         contributionData = {
-          ...contributionData,
+          _type: "contribution",
           type: "memory",
           title,
           content,
+          contributorName,
+          submittedAt: new Date().toISOString(),
+          approved: false
         }
       } else if (type === "document") {
         const file = formData.get("file") as File;
@@ -135,19 +139,20 @@ export async function POST(request: NextRequest) {
           const asset = await uploadToSanity(file, 'file');
 
           contributionData = {
-            ...contributionData,
+            _type: "contribution",
             type: "document",
             title,
             content: description,
-            media: [{
-              _type: "object",
-              title: title || file.name,
-              type: "document",
+            documentFile: {
+              _type: "file",
               asset: {
                 _type: "reference",
                 _ref: asset._id
               }
-            }]
+            },
+            contributorName,
+            submittedAt: new Date().toISOString(),
+            approved: false
           }
         }
       }

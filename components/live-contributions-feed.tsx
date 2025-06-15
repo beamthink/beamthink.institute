@@ -18,6 +18,10 @@ interface LiveContribution {
   submittedAt: string
   timelineYear?: number
   timelineCategory?: string
+  image?: SanityImageSource
+  caption?: string
+  documentFile?: any
+  approved?: boolean
   media?: Array<{
     _type: string
     title?: string
@@ -44,12 +48,24 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
 
   const fetchContributions = async () => {
     try {
+      console.log('Fetching contributions for advisor:', advisorSlug)
       const response = await fetch(`/api/contributions?advisorSlug=${advisorSlug}`)
-      if (!response.ok) throw new Error('Failed to fetch contributions')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch contributions')
+      }
       const data = await response.json()
-      setContributions(data.contributions)
+      console.log('Contributions API response:', JSON.stringify(data, null, 2))
+      
+      // Filter out any null or invalid contributions
+      const validContributions = (data.contributions || [])
+        .filter((c: LiveContribution) => c && c._id && c.type)
+      
+      console.log('Valid contributions after filtering:', JSON.stringify(validContributions, null, 2))
+      setContributions(validContributions)
     } catch (error) {
       console.error("Error fetching contributions:", error)
+      setContributions([])
     } finally {
       setLoading(false)
     }
@@ -143,88 +159,86 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
           </div>
         ) : (
           <div className="space-y-4">
-            {contributions.map((contribution) => (
-              <div
-                key={contribution._id}
-                className="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
-              >
-                <div className="flex-shrink-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs bg-gray-700">
-                      {contribution.contributorName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .substring(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-
-                <div className="flex-grow min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className={`text-xs ${getContributionColor(contribution.type)}`}>
-                      {getContributionIcon(contribution.type)}
-                      <span className="ml-1 capitalize">{contribution.type}</span>
-                    </Badge>
-                    <span className="text-gray-500 text-xs">{formatTimeAgo(contribution.submittedAt)}</span>
+            {contributions.map((contribution) => 
+              contribution && contribution._id && (
+                <div
+                  key={contribution._id}
+                  className="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800/70 transition-colors"
+                >
+                  <div className="flex-shrink-0">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs bg-gray-700">
+                        {contribution.contributorName
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .substring(0, 2) || "??"}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
 
-                  <h4 className="text-white font-medium text-sm mb-1">{contribution.title}</h4>
-
-                  {contribution.content && (
-                    <p className="text-gray-300 text-xs line-clamp-2 mb-2">{contribution.content}</p>
-                  )}
-
-                  {contribution.type === "timeline" && contribution.timelineYear && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {contribution.timelineYear}
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className={`text-xs ${getContributionColor(contribution.type)}`}>
+                        {getContributionIcon(contribution.type)}
+                        <span className="ml-1 capitalize">{contribution.type}</span>
                       </Badge>
-                      {contribution.timelineCategory && (
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {contribution.timelineCategory}
+                      <span className="text-gray-500 text-xs">{formatTimeAgo(contribution.submittedAt)}</span>
+                    </div>
+
+                    <h4 className="text-white font-medium text-sm mb-1">{contribution.title}</h4>
+
+                    {contribution.content && (
+                      <p className="text-gray-300 text-xs line-clamp-2 mb-2">{contribution.content}</p>
+                    )}
+
+                    {contribution.type === "timeline" && contribution.timelineYear && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {contribution.timelineYear}
                         </Badge>
-                      )}
-                    </div>
-                  )}
+                        {contribution.timelineCategory && (
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {contribution.timelineCategory}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
 
-                  {contribution.media && contribution.media.length > 0 && (
-                    <div className="mt-2 space-y-2">
-                      {contribution.media.map((media, index) => (
-                        media.asset && (
-                          <div key={index} className="relative group">
-                            <img
-                              src={urlForImage(media.asset as SanityImageSource).width(800).url() || "/placeholder.svg"}
-                              alt={media.title || "Media"}
-                              className="w-full h-48 md:h-64 object-cover rounded-lg"
-                            />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => handleDownload(
-                                  urlForImage(media.asset as SanityImageSource).url() || "",
-                                  media.title || "image"
-                                )}
-                                className="flex items-center gap-2"
-                              >
-                                <Download className="h-4 w-4" />
-                                Download
-                              </Button>
-                            </div>
+                    {contribution.type === "photo" && contribution.image && (
+                      <div className="mt-2 space-y-2">
+                        <div className="relative group">
+                          <img
+                            src={urlForImage(contribution.image as SanityImageSource).width(800).url() || "/placeholder.svg"}
+                            alt={contribution.caption || contribution.title || "Photo"}
+                            className="w-full h-48 md:h-64 object-cover rounded-lg"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleDownload(
+                                urlForImage(contribution.image as SanityImageSource).url() || "",
+                                contribution.caption || contribution.title || "image"
+                              )}
+                              className="flex items-center gap-2"
+                            >
+                              <Download className="h-4 w-4" />
+                              Download
+                            </Button>
                           </div>
-                        )
-                      ))}
-                    </div>
-                  )}
+                        </div>
+                      </div>
+                    )}
 
-                  <div className="flex items-center gap-1 mt-2">
-                    <User className="h-3 w-3 text-gray-500" />
-                    <span className="text-gray-500 text-xs">{contribution.contributorName}</span>
+                    <div className="flex items-center gap-1 mt-2">
+                      <User className="h-3 w-3 text-gray-500" />
+                      <span className="text-gray-500 text-xs">{contribution.contributorName}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         )}
       </CardContent>

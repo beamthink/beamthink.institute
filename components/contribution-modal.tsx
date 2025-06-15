@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { X, Upload, FileText, ImageIcon, Video, Mic, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,12 +10,15 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
+type ContributionType = "photo" | "timeline" | "memory" | "document" | null;
+
 interface ContributionModalProps {
   isOpen: boolean
   onClose: () => void
   advisorName: string
   advisorSlug: string
   onContributionSubmitted: () => void
+  initialType?: ContributionType
 }
 
 interface UploadedFile {
@@ -35,6 +36,7 @@ export default function ContributionModal({
   advisorName,
   advisorSlug,
   onContributionSubmitted,
+  initialType = null,
 }: ContributionModalProps) {
   const [activeTab, setActiveTab] = useState("details")
   const [title, setTitle] = useState("")
@@ -45,10 +47,17 @@ export default function ContributionModal({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [selectedType, setSelectedType] = useState<ContributionType>(initialType)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedType(initialType)
+    }
+  }, [isOpen, initialType])
 
   if (!isOpen) return null
 

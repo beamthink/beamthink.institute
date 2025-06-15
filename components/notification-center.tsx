@@ -1,120 +1,103 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bell, ExternalLink, Users, Settings, Activity, X } from "lucide-react"
+import { Bell, X, Camera, Calendar, FileText, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { createClient } from "@sanity/client"
+import { urlForImage } from "@/lib/sanity"
+import { motion, AnimatePresence } from "framer-motion"
 
-interface Participant {
-  id: string
-  name: string
-  role: string
-  avatar?: string
-  isOnline?: boolean
-}
+// Create a read-only Sanity client
+const sanityClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  apiVersion: "2024-03-01",
+  useCdn: true,
+})
 
-interface AccessTool {
-  id: string
-  name: string
-  url: string
-  icon?: string
-}
-
-interface Notification {
-  id: string
-  type: "contribution" | "activity" | "system"
+interface Contribution {
+  _id: string
+  type: "photo" | "timeline" | "memory" | "document"
   title: string
-  message: string
-  timestamp: Date
-  read: boolean
+  content?: string
+  contributorName: string
+  submittedAt: string
+  image?: {
+    _type: "image"
+    asset: {
+      _ref: string
+    }
+  }
+  caption?: string
+  timelineYear?: number
+  timelineCategory?: string
+  documentFile?: {
+    _type: "file"
+    asset: {
+      _ref: string
+    }
+  }
 }
 
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<"participants" | "tools" | "activity">("participants")
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [contributions, setContributions] = useState<Contribution[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [lastChecked, setLastChecked] = useState<Date>(new Date())
 
-  // Mock data - replace with real data later
-  const participants: Participant[] = [
-    {
-      id: "1",
-      name: "Alex Chen",
-      role: "Sound Designer",
-      avatar: "/placeholder.svg?height=32&width=32",
-      isOnline: true,
-    },
-    {
-      id: "2",
-      name: "Maria Rodriguez",
-      role: "Community Manager",
-      avatar: "/placeholder.svg?height=32&width=32",
-      isOnline: true,
-    },
-    {
-      id: "3",
-      name: "David Kim",
-      role: "Developer",
-      avatar: "/placeholder.svg?height=32&width=32",
-      isOnline: false,
-    },
-  ]
+  // Fetch contributions from Sanity
+  const fetchContributions = async () => {
+    try {
+      const query = `*[_type == "contribution" && approved == true] | order(submittedAt desc)[0...10] {
+        _id,
+        type,
+        title,
+        content,
+        contributorName,
+        submittedAt,
+        image,
+        caption,
+        timelineYear,
+        timelineCategory,
+        documentFile
+      }`
+      
+      const result = await sanityClient.fetch(query)
+      setContributions(result)
+      setLastChecked(new Date())
+    } catch (error) {
+      console.error("Error fetching contributions:", error)
+    }
+  }
 
-  const accessTools: AccessTool[] = [
-    {
-      id: "1",
-      name: "Website",
-      url: "https://beam.eco",
-    },
-    {
-      id: "2",
-      name: "BEAM Wallet",
-      url: "https://wallet.beam.eco",
-    },
-    {
-      id: "3",
-      name: "BEAM FCU App",
-      url: "https://app.beam.eco",
-    },
-  ]
-
-  // Mock notifications - replace with real data later
+  // Initial fetch
   useEffect(() => {
-    const mockNotifications: Notification[] = [
-      {
-        id: "1",
-        type: "contribution",
-        title: "New Photo Added",
-        message: "Sarah added a photo to Minerva's memorial",
-        timestamp: new Date(Date.now() - 5 * 60 * 1000),
-        read: false,
-      },
-      {
-        id: "2",
-        type: "activity",
-        title: "Timeline Updated",
-        message: 'New milestone added: "Founded BEAM Collective"',
-        timestamp: new Date(Date.now() - 15 * 60 * 1000),
-        read: false,
-      },
-      {
-        id: "3",
-        type: "system",
-        title: "Welcome!",
-        message: "Thanks for visiting the BEAM OS Dashboard",
-        timestamp: new Date(Date.now() - 30 * 60 * 1000),
-        read: true,
-      },
-    ]
-
-    setNotifications(mockNotifications)
-    setUnreadCount(mockNotifications.filter((n) => !n.read).length)
+    fetchContributions()
   }, [])
 
-  const formatTimeAgo = (date: Date) => {
+  // Poll for new contributions every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(fetchContributions, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const subscription = sanityClient
+      .listen('*[_type == "contribution" && approved == true]')
+      .subscribe(() => {
+        fetchContributions()
+      })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const formatTimeAgo = (date: string) => {
     const now = new Date()
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    const then = new Date(date)
+    const diffInMinutes = Math.floor((now.getTime() - then.getTime()) / (1000 * 60))
 
     if (diffInMinutes < 1) return "Just now"
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`
@@ -122,9 +105,19 @@ export function NotificationCenter() {
     return `${Math.floor(diffInMinutes / 1440)}d ago`
   }
 
-  const markAsRead = (notificationId: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n)))
-    setUnreadCount((prev) => Math.max(0, prev - 1))
+  const getContributionIcon = (type: string) => {
+    switch (type) {
+      case "photo":
+        return <Camera className="h-4 w-4" />
+      case "timeline":
+        return <Calendar className="h-4 w-4" />
+      case "memory":
+        return <MessageSquare className="h-4 w-4" />
+      case "document":
+        return <FileText className="h-4 w-4" />
+      default:
+        return <Bell className="h-4 w-4" />
+    }
   }
 
   return (
@@ -133,12 +126,12 @@ export function NotificationCenter() {
       <div className="fixed bottom-6 left-6 z-50">
         <Button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all duration-200 hover:scale-105"
+          className="relative h-12 w-12 rounded-full bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 hover:bg-gray-800/95 shadow-lg transition-all duration-200 hover:scale-105"
           size="icon"
         >
           <Bell className="h-5 w-5 text-white" />
           {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 p-0 text-xs text-white flex items-center justify-center">
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-500 p-0 text-xs text-white flex items-center justify-center">
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}
@@ -146,132 +139,89 @@ export function NotificationCenter() {
       </div>
 
       {/* Notification Panel */}
-      {isOpen && (
-        <div className="fixed bottom-20 left-6 z-40 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl transition-all duration-300 animate-in slide-in-from-bottom-2">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-            <div className="flex space-x-1">
-              <Button
-                variant={activeTab === "participants" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("participants")}
-                className="text-xs"
-              >
-                <Users className="h-3 w-3 mr-1" />
-                Participants
-              </Button>
-              <Button
-                variant={activeTab === "tools" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("tools")}
-                className="text-xs"
-              >
-                <Settings className="h-3 w-3 mr-1" />
-                Tools
-              </Button>
-              <Button
-                variant={activeTab === "activity" ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setActiveTab("activity")}
-                className="text-xs"
-              >
-                <Activity className="h-3 w-3 mr-1" />
-                Activity
-              </Button>
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-6 w-6">
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed bottom-20 left-6 z-40 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
+                <h3 className="text-sm font-medium text-white">Recent Activity</h3>
+                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-6 w-6">
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
 
-          {/* Content */}
-          <div className="max-h-80 overflow-y-auto">
-            {activeTab === "participants" && (
-              <div className="p-4 space-y-3">
-                <h3 className="text-sm font-medium text-gray-300 mb-3">Participants</h3>
-                {participants.map((participant) => (
-                  <div
-                    key={participant.id}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors"
-                  >
-                    <div className="relative">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={participant.avatar || "/placeholder.svg"} alt={participant.name} />
-                        <AvatarFallback className="text-xs">
-                          {participant.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      {participant.isOnline && (
-                        <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 border-2 border-gray-900 rounded-full"></div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{participant.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{participant.role}</p>
-                    </div>
+              {/* Content */}
+              <div className="max-h-80 overflow-y-auto">
+                {contributions.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className="text-sm text-gray-400">No recent activity</p>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "tools" && (
-              <div className="p-4 space-y-3">
-                <h3 className="text-sm font-medium text-gray-300 mb-3">Access Tools</h3>
-                {accessTools.map((tool) => (
-                  <a
-                    key={tool.id}
-                    href={tool.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-800/50 transition-colors group"
-                  >
-                    <span className="text-sm text-white">{tool.name}</span>
-                    <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
-                  </a>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "activity" && (
-              <div className="p-4 space-y-3">
-                <h3 className="text-sm font-medium text-gray-300 mb-3">Recent Activity</h3>
-                {notifications.length === 0 ? (
-                  <p className="text-xs text-gray-500 text-center py-4">No recent activity</p>
                 ) : (
-                  notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-3 rounded-lg transition-colors cursor-pointer ${
-                        notification.read
-                          ? "bg-gray-800/30 hover:bg-gray-800/50"
-                          : "bg-blue-900/30 hover:bg-blue-900/50 border border-blue-700/30"
-                      }`}
-                      onClick={() => !notification.read && markAsRead(notification.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{notification.title}</p>
-                          <p className="text-xs text-gray-400 mt-1 line-clamp-2">{notification.message}</p>
-                          <p className="text-xs text-gray-500 mt-2">{formatTimeAgo(notification.timestamp)}</p>
+                  <div className="p-2 space-y-2">
+                    {contributions.map((contribution) => (
+                      <motion.div
+                        key={contribution._id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="p-3 rounded-lg bg-gray-800/30 hover:bg-gray-800/50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                            {getContributionIcon(contribution.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-white truncate">
+                                  {contribution.title || `${contribution.type} contribution`}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                                  {contribution.content || contribution.caption}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Avatar className="h-5 w-5">
+                                <AvatarFallback className="text-[10px] bg-gray-700">
+                                  {contribution.contributorName
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .substring(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs text-gray-500">{contribution.contributorName}</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-500">{formatTimeAgo(contribution.submittedAt)}</span>
+                            </div>
+                          </div>
                         </div>
-                        {!notification.read && (
-                          <div className="h-2 w-2 bg-blue-500 rounded-full ml-2 mt-1 flex-shrink-0"></div>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </motion.div>
 
-      {/* Backdrop */}
-      {isOpen && <div className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm" onClick={() => setIsOpen(false)} />}
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
+              onClick={() => setIsOpen(false)}
+            />
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }

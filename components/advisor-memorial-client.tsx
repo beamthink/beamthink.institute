@@ -24,7 +24,7 @@ interface SpeechRecognitionErrorEvent {
 }
 
 // Import Lucide React icons
-import { ArrowLeft, Quote, MessageCircle, Camera } from "lucide-react"
+import { ArrowLeft, Quote, MessageCircle, Camera, Clock, Heart, FileText } from "lucide-react" // Added Clock, Heart, FileText for clarity
 
 // Import shadcn/ui components
 import { Button } from "@/components/ui/button"
@@ -85,13 +85,11 @@ interface SanityPersonData {
   keyWorks?: string[]
 }
 
-// --- REMOVED portableTextComponents FROM PROPS INTERFACE ---
 interface AdvisorMemorialClientProps {
   advisorData: {
     basic: SupabaseAdvisor
     detailed: SanityPersonData | null
   }
-  // portableTextComponents: PortableTextComponents; // <--- REMOVED THIS LINE
 }
 
 // --- PORTABLE TEXT COMPONENTS (DEFINED LOCALLY IN THIS CLIENT COMPONENT FILE) ---
@@ -123,11 +121,11 @@ const portableTextComponents: PortableTextComponents = {
   },
 }
 
-// --- UPDATED COMPONENT FUNCTION SIGNATURE ---
-export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialClientProps) { // <--- REMOVED portableTextComponents FROM HERE
+export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialClientProps) {
   const { basic, detailed } = advisorData
   const [activeTab, setActiveTab] = useState("overview")
   const [showContributionModal, setShowContributionModal] = useState(false)
+  const [selectedContributionType, setSelectedContributionType] = useState<"photo" | "timeline" | "memory" | "document" | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Voice-related state
@@ -202,7 +200,6 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
     currentUtteranceRef.current = utterance
     synthRef.current.speak(utterance)
   }
-
   const stopSpeaking = () => {
     if (synthRef.current) synthRef.current.cancel()
     setIsSpeaking(false)
@@ -217,7 +214,13 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
   const handleContributionSubmitted = () => {
     setRefreshTrigger((prev) => prev + 1)
     toast.success("Thank you! Your contribution has been submitted for review.")
+    setSelectedContributionType(null);
   }
+
+  const openContributionModalWithType = (type: "photo" | "timeline" | "memory" | "document") => {
+    setSelectedContributionType(type);
+    setShowContributionModal(true);
+  };
 
   // Fallback for avatar if Supabase doesn't have it or it's not a URL
   const advisorAvatar = basic.avatar && basic.avatar.startsWith("http") ? basic.avatar : "/placeholder.svg"
@@ -322,7 +325,6 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
                 </CardHeader>
                 <CardContent>
                   <div className="prose prose-invert max-w-none">
-                    {/* COMPONENTS PROP NOW REFERS TO THE LOCALLY DEFINED ONE */}
                     <PortableText value={detailed.detailedBio} components={portableTextComponents} />
                   </div>
                 </CardContent>
@@ -436,7 +438,7 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-white font-medium mb-2">Community Archive</h4>
+                      <h4 className="text-white font-medium text-sm">Community Archive</h4>
                       <p className="text-gray-300 text-sm">
                         A collaborative space where anyone can contribute to preserving and sharing their legacy.
                       </p>
@@ -451,29 +453,41 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 bg-blue-900/20 rounded-lg">
+                    <div
+                      className="flex items-center gap-3 p-3 bg-blue-900/20 rounded-lg cursor-pointer hover:bg-blue-900/30 transition-colors"
+                      onClick={() => openContributionModalWithType("photo")}
+                    >
                       <Camera className="h-5 w-5 text-blue-400" />
                       <div>
                         <p className="text-white font-medium text-sm">Add Photos</p>
                         <p className="text-gray-400 text-xs">Share historical photos or images</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-green-900/20 rounded-lg">
-                      <Camera className="h-5 w-5 text-green-400" />
+                    <div
+                      className="flex items-center gap-3 p-3 bg-green-900/20 rounded-lg cursor-pointer hover:bg-green-900/30 transition-colors"
+                      onClick={() => openContributionModalWithType("timeline")}
+                    >
+                      <Camera className="h-5 w-5 text-green-400" /> {/* Should be Clock icon for Timeline? */}
                       <div>
                         <p className="text-white font-medium text-sm">Timeline Events</p>
                         <p className="text-gray-400 text-xs">Add important life milestones</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-purple-900/20 rounded-lg">
-                      <Camera className="h-5 w-5 text-purple-400" />
+                    <div
+                      className="flex items-center gap-3 p-3 bg-purple-900/20 rounded-lg cursor-pointer hover:bg-purple-900/30 transition-colors"
+                      onClick={() => openContributionModalWithType("memory")}
+                    >
+                      <Camera className="h-5 w-5 text-purple-400" /> {/* Should be Heart icon for Memory? */}
                       <div>
                         <p className="text-white font-medium text-sm">Share Memories</p>
                         <p className="text-gray-400 text-xs">Personal stories and experiences</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-orange-900/20 rounded-lg">
-                      <Camera className="h-5 w-5 text-orange-400" />
+                    <div
+                      className="flex items-center gap-3 p-3 bg-orange-900/20 rounded-lg cursor-pointer hover:bg-orange-900/30 transition-colors"
+                      onClick={() => openContributionModalWithType("document")}
+                    >
+                      <Camera className="h-5 w-5 text-orange-400" /> {/* Should be FileText icon for Document? */}
                       <div>
                         <p className="text-white font-medium text-sm">Upload Documents</p>
                         <p className="text-gray-400 text-xs">Letters, articles, or papers</p>
@@ -496,7 +510,10 @@ export default function AdvisorMemorialClient({ advisorData }: AdvisorMemorialCl
         {/* Contribution Modal */}
         <ContributionModal
           isOpen={showContributionModal}
-          onClose={() => setShowContributionModal(false)}
+          onClose={() => {
+            setShowContributionModal(false); // Close the modal
+            setSelectedContributionType(null); // Clear the type when closed
+          }}
           advisorName={basic.full_name}
           advisorSlug={basic.slug}
           onContributionSubmitted={handleContributionSubmitted}

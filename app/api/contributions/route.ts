@@ -98,6 +98,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Missing advisorSlug parameter" }, { status: 400 })
     }
 
+    console.log('Fetching advisor with slug:', advisorSlug)
+
     // Get the advisor's Sanity ID from Supabase
     const { data: advisor } = await supabase
       .from("ai_advisors")
@@ -106,13 +108,17 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (!advisor?.sanity_person_id) {
+      console.log('No advisor found for slug:', advisorSlug)
       return NextResponse.json({ error: "Advisor not found" }, { status: 404 })
     }
 
+    console.log('Found advisor with Sanity ID:', advisor.sanity_person_id)
+
     // Fetch contributions from Sanity
     const query = `*[_type == "person" && _id == $personId][0]{
-      contributions[]{
+      "contributions": contributions[]->{
         _id,
+        _type,
         type,
         title,
         content,
@@ -120,18 +126,18 @@ export async function GET(request: NextRequest) {
         submittedAt,
         timelineYear,
         timelineCategory,
-        media[]{
-          _type,
-          title,
-          type,
-          asset->
-        }
+        image,
+        caption,
+        documentFile,
+        approved
       }
     }`
 
     const result = await sanityClient.fetch(query, { personId: advisor.sanity_person_id })
-    const contributions = result?.contributions || []
-
+    const contributions = (result?.contributions || [])
+      .filter((contribution: { _id?: string; _type?: string } | null) => 
+        contribution && contribution._id && contribution._type === 'contribution'
+      )
     return NextResponse.json({ contributions })
   } catch (error) {
     console.error("Error fetching contributions:", error)

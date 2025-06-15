@@ -1,15 +1,13 @@
+// app/advisors/[slug]/page.tsx
+
 import { notFound } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { sanityClient } from "@/lib/sanity"
 import AdvisorMemorialClient from "@/components/advisor-memorial-client"
-import Image from "next/image"
-import type { PortableTextComponents, PortableTextMarkComponentProps } from "@portabletext/react"
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
-import { urlForImage } from "@/lib/sanity"
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
+// (Keep your existing interfaces here)
 
-// Interface for basic data from Supabase's ai_advisors table (Aligned with SQL)
 interface SupabaseAdvisor {
   id: string // UUID in Supabase
   slug: string
@@ -24,7 +22,6 @@ interface SupabaseAdvisor {
   deathYear?: number | null // The death year of the advisor (TEXT in Supabase)
 }
 
-// Interface for rich data from Sanity's Person document (Aligned with person.ts schema)
 interface SanityPersonData {
   _id: string
   _type: "person" // MUST match the schema's name in studio-beam-memorials/schemas/person.ts
@@ -70,11 +67,11 @@ interface SanityPersonData {
   keyWorks?: string[] // array, of: [{type: 'string'}]
 }
 
-// Combined interface for the page's data
 interface AdvisorPageData {
   supabaseData: SupabaseAdvisor
   sanityData: SanityPersonData | null // Sanity data is optional
 }
+
 
 // --- DATA FETCHING FUNCTIONS ---
 async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
@@ -126,56 +123,47 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
   return { supabaseData: supabaseAdvisor, sanityData: sanityPerson }
 }
 
-// Move portableTextComponents to a separate file
-const portableTextComponents: PortableTextComponents = {
-  types: {
-    image: ({ value }: { value: SanityImageSource & { alt?: string; asset?: { _ref: string } } }) => {
-      if (!value.asset) return null
-      return (
-        <Image
-          className="w-full h-auto my-4 rounded-lg"
-          src={urlForImage(value).url() || "/placeholder.svg"}
-          alt={value.alt || "Image"}
-          width={800}
-          height={450}
-          priority
+// --- NEXT.JS PAGE COMPONENT (SERVER COMPONENT) ---
+export default async function AdvisorPage({
+  params,
+}: {
+  params: { slug: string }
+}) {
+  // Create a promise that resolves with the params
+  const resolvedParams = await Promise.resolve(params)
+  const { slug } = resolvedParams
+
+  // Wrap the data fetching in a try-catch block
+  try {
+    console.log("🚀 AdvisorPage rendering for slug:", slug)
+
+    const advisorData = await getAdvisorData(slug)
+    if (!advisorData) {
+      throw new Error(`No advisor found for slug: ${slug}`)
+    }
+
+    console.log("✅ Rendering memorial for:", advisorData.supabaseData.full_name)
+
+    return (
+      <div className="min-h-screen bg-gray-900">
+        <AdvisorMemorialClient
+          advisorData={{
+            basic: advisorData.supabaseData,
+            detailed: advisorData.sanityData,
+          }}
         />
-      )
-    },
-  },
-  marks: {
-    link: ({ children, value }: PortableTextMarkComponentProps<{ href: string; _type: string }>) => {
-      const rel = !value?.href?.startsWith("/") ? "noreferrer noopener" : undefined
-      return (
-        <a href={value?.href} rel={rel} className="text-blue-500 hover:underline">
-          {children}
-        </a>
-      )
-    },
-  },
-}
-
-// Server Component
-export default async function AdvisorPage({ params }: { params: { slug: string } }) {
-  console.log("🚀 AdvisorPage rendering for slug:", params.slug)
-  
-  const advisorData = await getAdvisorData(params.slug)
-
-  if (!advisorData) {
-    console.log("❌ No advisor data found, showing 404")
-    notFound()
+      </div>
+    )
+  } catch (error) {
+    console.error("Error in AdvisorPage:", error)
+    // Return a proper error UI
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Error Loading Advisor</h1>
+          <p className="text-gray-400">Unable to load the requested advisor's memorial.</p>
+        </div>
+      </div>
+    )
   }
-// test commit to verify git identity
-  const { supabaseData: advisor, sanityData: richAdvisorData } = advisorData
-
-  console.log("✅ Rendering memorial for:", advisor.full_name)
-
-  return (
-    <AdvisorMemorialClient
-      advisorData={{
-        basic: advisor,
-        detailed: richAdvisorData,
-      }}
-    />
-  )
 }
