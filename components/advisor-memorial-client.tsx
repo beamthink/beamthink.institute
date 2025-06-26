@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { urlForImage } from "@/lib/sanity"
+import { urlFor } from "@/lib/sanity"
 import { PortableText, type PortableTextComponents, type PortableTextMarkComponentProps } from "@portabletext/react"
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
 
@@ -100,7 +100,7 @@ const portableTextComponents: PortableTextComponents = {
       return (
         <Image
           className="w-full h-auto my-4 rounded-lg"
-          src={urlForImage(value).width(800).url() || "/placeholder.svg"}
+          src={urlFor(value).width(800).url() || "/placeholder.svg"}
           alt={value.alt || "Image"}
           width={800}
           height={450}

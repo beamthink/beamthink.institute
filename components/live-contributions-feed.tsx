@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { urlForImage } from "@/lib/sanity"
+import { urlFor } from "@/lib/sanity"
 import type { SanityImageSource } from "@sanity/image-url/lib/types/types"
 
 interface LiveContribution {
@@ -209,7 +209,7 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
                       <div className="mt-2 space-y-2">
                         <div className="relative group">
                           <img
-                            src={urlForImage(contribution.image as SanityImageSource).width(800).url() || "/placeholder.svg"}
+                            src={urlFor(contribution.image as SanityImageSource).width(800).url() || "/placeholder.svg"}
                             alt={contribution.caption || contribution.title || "Photo"}
                             className="w-full h-48 md:h-64 object-cover rounded-lg"
                           />
@@ -218,7 +218,7 @@ export default function LiveContributionsFeed({ advisorSlug, refreshTrigger }: L
                               size="sm"
                               variant="secondary"
                               onClick={() => handleDownload(
-                                urlForImage(contribution.image as SanityImageSource).url() || "",
+                                urlFor(contribution.image as SanityImageSource).url() || "",
                                 contribution.caption || contribution.title || "image"
                               )}
                               className="flex items-center gap-2"

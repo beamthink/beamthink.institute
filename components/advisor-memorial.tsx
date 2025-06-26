@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 // Add missing import for Image component if not already there, and urlForImage
 import Image from 'next/image';
-import { urlForImage } from '@/lib/sanity'; // Assuming urlForImage is exported from lib/sanity.ts
+import { urlFor } from '@/lib/sanity'; // Assuming urlFor is exported from lib/sanity.ts
 
 // Add PortableText related imports
 import { PortableText, PortableTextComponents, PortableTextMarkComponentProps } from '@portabletext/react';
@@ -445,7 +445,7 @@ export default function AdvisorMemorial({ advisorData }: AdvisorMemorialProps) {
                         {/* Rendering logic based on item.type (from Sanity schema) */}
                         {item.type === 'Image' && item.asset && ( // Check item.type, not _type
                             <Image
-                                src={urlForImage(item.asset).width(400).url()} // <-- CORRECTED: Pass item.asset
+                                src={urlFor(item.asset).width(400).url()} // <-- CORRECTED: Pass item.asset
                                 alt={item.alt || item.title || 'Media image'}
                                 width={400}
                                 height={225}

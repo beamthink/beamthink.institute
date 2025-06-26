@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { createClient } from "@sanity/client"
-import { urlForImage } from "@/lib/sanity"
+import { urlFor } from "@/lib/sanity"
 import { motion, AnimatePresence } from "framer-motion"
 
 // Create a read-only Sanity client
@@ -123,7 +123,7 @@ export function NotificationCenter() {
   return (
     <>
       {/* Notification Trigger Button */}
-      <div className="fixed bottom-6 left-6 z-50">
+      <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(!isOpen)}
           className="relative h-12 w-12 rounded-full bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 hover:bg-gray-800/95 shadow-lg transition-all duration-200 hover:scale-105"
@@ -147,7 +147,7 @@ export function NotificationCenter() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="fixed bottom-20 left-6 z-40 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl"
+              className="fixed bottom-20 right-6 z-40 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-700/50">

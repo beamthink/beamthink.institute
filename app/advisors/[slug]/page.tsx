@@ -1,97 +1,74 @@
-// app/advisors/[slug]/page.tsx
-
-import { notFound } from "next/navigation"
-import { supabase } from "@/lib/supabase"
-import { sanityClient } from "@/lib/sanity"
-import AdvisorMemorialClient from "@/components/advisor-memorial-client"
+import { notFound } from "next/navigation";
+import type { Metadata } from "next"; // Metadata is for Server Components, but can be managed client-side too
+import { supabase } from "@/lib/supabase";
+import { client as sanityClient, urlFor } from "@/lib/sanity"; // Corrected imports
+import React from "react";
+import Link from "next/link";
+import { Calendar, MessageCircle, ArrowLeft } from "lucide-react"; // Example: If Back/Chat buttons are here
+// Import shadcn/ui components needed (only if used directly in this page.tsx, not in AdvisorMemorialClient)
+import { Button } from "@/components/ui/button";
+// Remove unused imports since they're not being used in this page component
+// The AdvisorMemorialClientPage component will handle its own UI components
+import AdvisorMemorialClient from "@/components/advisor-memorial-client";
 
 // --- INTERFACES (DEFINITIONS FOR YOUR DATA STRUCTURES) ---
-// (Keep your existing interfaces here)
+// These must be accurate and align with your Supabase table and Sanity schema
+// (Copied directly from previous turn, ensure no new changes are introduced)
 
 interface SupabaseAdvisor {
-  id: string // UUID in Supabase
-  slug: string
-  full_name: string
-  role: string
-  bio: string // Short bio
-  avatar: string // URL string
-  sanity_person_id?: string | null // The link to Sanity (TEXT in Supabase)
-  specialties?: string[] | null // TEXT[] in Supabase
-  totalContributions?: number | null // The total number of contributions (TEXT in Supabase)
-  birthYear?: number | null // The birth year of the advisor (TEXT in Supabase)
-  deathYear?: number | null // The death year of the advisor (TEXT in Supabase)
+  id: string;
+  slug: string;
+  full_name: string;
+  role: string;
+  bio: string;
+  avatar: string;
+  sanity_person_id?: string | null;
+  specialties?: string[] | null;
+  totalContributions?: number | null; // Placeholder, likely from Sanity
+  birthYear?: number | null; // Placeholder, likely from Sanity
+  deathYear?: number | null; // Placeholder, likely from Sanity
 }
 
 interface SanityPersonData {
-  _id: string
-  _type: "person" // MUST match the schema's name in studio-beam-memorials/schemas/person.ts
-  fullName?: string // As per your person.ts schema
-  detailedBio?: any // PortableText (type 'array', of: [{type: 'block'}])
-  quotes?: string[] // array, of: [{type: 'text'}]
-  timeline?: Array<{
-    // array, of: [{type: 'object', fields: [...]}]
-    year: number
-    title: string
-    description: string
-    category: string
-  }>
-  media?: Array<{
-    // array, of: [{type: 'object', fields: [...]}]
-    _type: string // e.g., 'object' for the container object
-    title?: string
-    description?: string
-    type?: string // e.g., 'Image', 'Video', 'Audio', 'Document' - from schema field
-    url?: string // For external videos/audio
-    asset?: { _ref: string; url?: string; originalFilename?: string } // `asset->{url}` in GROQ dereferences to this
-    alt?: string // For image alt text
-    tags?: string[]
-    uploadedBy?: string
-    uploadedAt?: string
-    approved?: boolean
-  }>
-  contributions?: Array<{
-    // array, of: [{type: 'object', fields: [...]}]
-    _type: string // e.g., 'object' for the container object
-    type?: string // e.g., 'memory', 'quote', 'document', 'media' - from schema field
-    title?: string
-    content?: string
-    contributorName?: string
-    contributorEmail?: string
-    submittedAt?: string // datetime string
-    approved?: boolean
-    tags?: string[]
-    media?: string[] // If contributions have their own media (e.g. references to other assets)
-  }>
-  chatPersonality?: string
-  voiceCharacteristics?: string
-  keyWorks?: string[] // array, of: [{type: 'string'}]
+  _id: string;
+  _type: "person";
+  fullName?: string;
+  detailedBio?: any;
+  quotes?: string[];
+  timeline?: Array<{ year: number; title: string; description: string; category: string }>;
+  media?: Array<{ _type: string; title?: string; description?: string; type?: string; url?: string; asset?: { _ref: string; url?: string; originalFilename?: string }; alt?: string; tags?: string[]; uploadedBy?: string; uploadedAt?: string; approved?: boolean; }>;
+  contributions?: Array<{ _type: string; type?: string; title?: string; content?: string; contributorName?: string; contributorEmail?: string; submittedAt?: string; approved?: boolean; tags?: string[]; media?: string[]; }>;
+  chatPersonality?: string;
+  voiceCharacteristics?: string;
+  keyWorks?: string[];
+  birthYear?: number;
+  deathYear?: number;
+  specialties?: string[]; // Specialties are now in SupabaseAdvisor and SanityPersonData for flexibility
 }
 
 interface AdvisorPageData {
-  supabaseData: SupabaseAdvisor
-  sanityData: SanityPersonData | null // Sanity data is optional
+  supabaseData: SupabaseAdvisor;
+  sanityData: SanityPersonData | null;
 }
-
 
 // --- DATA FETCHING FUNCTIONS ---
 async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
   const { data: supabaseAdvisor, error: supabaseError } = await supabase
-    .from("ai_advisors")
-    .select("*")
-    .eq("slug", slug)
-    .single()
+    .from('ai_advisors')
+    .select('*')
+    .eq('slug', slug)
+    .single();
 
-  if (supabaseError && supabaseError.code !== "PGRST116") {
-    // PGRST116 is 'No rows found'
-    console.error("Supabase fetch error for advisor:", supabaseError)
-    return null
+  if (supabaseError && supabaseError.code !== 'PGRST116') {
+    console.error('Supabase fetch error for advisor:', supabaseError);
+    return null;
   }
   if (!supabaseAdvisor) {
-    console.log(`Advisor "${slug}" not found in Supabase.`)
-    return null
+    console.log(`Advisor "${slug}" not found in Supabase.`);
+    return null;
   }
 
-  let sanityPerson: SanityPersonData | null = null
+  let sanityPerson: SanityPersonData | null = null;
   if (supabaseAdvisor.sanity_person_id) {
     try {
       const sanityQuery = `*[_type == "person" && _id == $personId][0]{
@@ -105,65 +82,90 @@ async function getAdvisorData(slug: string): Promise<AdvisorPageData | null> {
         chatPersonality,
         voiceCharacteristics,
         keyWorks,
-      }`
-      sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id })
+        birthYear,
+        deathYear,
+        specialties, // Fetch specialties from Sanity Person schema
+      }`;
+      sanityPerson = await sanityClient.fetch(sanityQuery, { personId: supabaseAdvisor.sanity_person_id });
 
       if (!sanityPerson) {
-        console.warn(
-          `Sanity Person document not found for ID: ${supabaseAdvisor.sanity_person_id}. Rich content will be missing.`,
-        )
+        console.warn(`Sanity Person document not found for ID: ${supabaseAdvisor.sanity_person_id}. Rich content will be missing.`);
       }
     } catch (sanityFetchError) {
-      console.error("Error fetching rich data from Sanity:", sanityFetchError)
+      console.error('Error fetching rich data from Sanity:', sanityFetchError);
     }
   } else {
-    console.warn(`Supabase advisor "${slug}" has no sanity_person_id. Rich content will be missing.`)
+    console.warn(`Supabase advisor "${slug}" has no sanity_person_id. Rich content will be missing.`);
   }
 
-  return { supabaseData: supabaseAdvisor, sanityData: sanityPerson }
+  return { supabaseData: supabaseAdvisor, sanityData: sanityPerson };
 }
 
-// --- NEXT.JS PAGE COMPONENT (SERVER COMPONENT) ---
-export default async function AdvisorPage({
-  params,
-}: {
-  params: { slug: string }
-}) {
-  // Create a promise that resolves with the params
-  const resolvedParams = await Promise.resolve(params)
-  const { slug } = resolvedParams
-
-  // Wrap the data fetching in a try-catch block
+// --- Next.js Functions for Dynamic Routes (These run on the server even if page is "use client") ---
+// generateStaticParams runs at build time on the server
+export async function generateStaticParams() {
+  // Ensure supabase is available here, it should be due to server context
+  if (!supabase) {
+    console.warn("Supabase client not initialized in generateStaticParams. Skipping static params generation.");
+    return [];
+  }
   try {
-    console.log("🚀 AdvisorPage rendering for slug:", slug)
+    console.log("📋 Generating static params...");
+    const { data: advisors, error } = await supabase
+      .from('ai_advisors')
+      .select('slug')
+      .eq('is_active', true);
 
-    const advisorData = await getAdvisorData(slug)
-    if (!advisorData) {
-      throw new Error(`No advisor found for slug: ${slug}`)
+    if (error) {
+      console.error('Error fetching slugs for generateStaticParams:', error);
+      return [];
+    }
+    if (!advisors) {
+      return [];
     }
 
-    console.log("✅ Rendering memorial for:", advisorData.supabaseData.full_name)
-
-    return (
-      <div className="min-h-screen bg-gray-900">
-        <AdvisorMemorialClient
-          advisorData={{
-            basic: advisorData.supabaseData,
-            detailed: advisorData.sanityData,
-          }}
-        />
-      </div>
-    )
+    return advisors.map((advisor: { slug: string }) => ({
+      slug: advisor.slug,
+    }));
   } catch (error) {
-    console.error("Error in AdvisorPage:", error)
-    // Return a proper error UI
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Error Loading Advisor</h1>
-          <p className="text-gray-400">Unable to load the requested advisor's memorial.</p>
-        </div>
-      </div>
-    )
+    console.error("❌ Error in generateStaticParams:", error);
+    return [];
   }
+}
+
+// Metadata generation (also runs on the server)
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const data = await getAdvisorData(params.slug); // Only need basic data for metadata
+
+  if (!data?.supabaseData) {
+    return {
+      title: "Advisor Not Found",
+    };
+  }
+  const advisor = data.supabaseData;
+
+  return {
+    title: `${advisor.full_name} - BEAM OS Memorial`,
+    description: advisor.bio,
+    openGraph: {
+      title: `${advisor.full_name} Memorial`,
+      description: advisor.bio,
+      images: [advisor.avatar || '/placeholder.svg'], // Use avatar URL
+    },
+  };
+}
+
+export default async function AdvisorPage({ params }: { params: { slug: string } }) {
+  const data = await getAdvisorData(params.slug);
+  if (!data) {
+    notFound();
+  }
+  
+  // Ensure data has the required structure
+  const advisorData = {
+    basic: data.supabaseData,
+    detailed: data.sanityData
+  };
+  
+  return <AdvisorMemorialClient advisorData={advisorData} />;
 }
