@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: supabaseProjects, error: supabaseError } = await query
-
+console.log('projects', supabaseProjects);
     if (supabaseError) {
       console.error("Supabase error:", supabaseError)
     }

@@ -1,4 +1,5 @@
 import { client } from './sanity'
+import type { SanityWikiPage } from "./sanity";
 
 export async function getPerson(slug: string) {
   return client.fetch(
@@ -20,4 +21,19 @@ export async function getAIAdvisor(slug: string) {
 
 export async function getAllAIAdvisors() {
   return client.fetch(`*[_type == "aiAdvisor"]`)
+}
+
+export async function getAllWikiPages(): Promise<SanityWikiPage[]> {
+  return client.fetch(
+    `*[_type == "wikiPage"] | order(updatedAt desc){
+      _id,
+      _type,
+      title,
+      tags,
+      category,
+      content,
+      version,
+      updatedAt
+    }`
+  );
 } 

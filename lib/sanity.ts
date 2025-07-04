@@ -90,3 +90,14 @@ export interface SanityNGOPod {
   _createdAt: string;
   _updatedAt: string;
 }
+
+export interface SanityWikiPage {
+  _id: string;
+  _type: "wikiPage";
+  title: string;
+  tags?: string[];
+  category?: string;
+  content: any[]; // Portable Text (block content)
+  version?: number;
+  updatedAt?: string;
+}

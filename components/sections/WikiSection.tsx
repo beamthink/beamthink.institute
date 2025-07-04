@@ -7,7 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, History } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getAllWikiPages } from '@/lib/sanity.queries';
 // import ReactMarkdown from 'react-markdown'; // Uncomment if available
+
+let PortableText: any = null;
+try {
+  // Dynamically import @portabletext/react if available
+  PortableText = require('@portabletext/react').PortableText;
+} catch {}
 
 export default function WikiSection() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -19,22 +26,36 @@ export default function WikiSection() {
 
   useEffect(() => {
     setLoading(true);
-    supabase
-      .from('wiki_pages')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) {
-          setError('Failed to load wiki pages.');
-          setPages([]);
-        } else {
-          setPages(data || []);
-        }
+    setError(null);
+    Promise.all([
+      supabase
+        .from('wiki_pages')
+        .select('*')
+        .order('updated_at', { ascending: false }),
+      getAllWikiPages()
+    ])
+      .then(([supabaseRes, sanityPages]) => {
+        const supabasePages = supabaseRes.data || [];
+        const sanityPagesArr = sanityPages || [];
+        // Merge by title, prefer Sanity if duplicate
+        const merged: Record<string, any> = {};
+        supabasePages.forEach((p: any) => {
+          if (p.title) merged[p.title] = { ...p, _source: 'supabase' };
+        });
+        sanityPagesArr.forEach((p: any) => {
+          if (p.title) merged[p.title] = { ...p, _source: 'sanity' };
+        });
+        setPages(Object.values(merged));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to load wiki pages from Supabase and/or Sanity.');
+        setPages([]);
         setLoading(false);
       });
   }, []);
 
-  const filteredPages = selectedTag ? pages.filter(p => p.tags && p.tags.includes(selectedTag)) : pages;
+  const filteredPages = selectedTag ? pages.filter(p => (p.tags || []).includes(selectedTag)) : pages;
   const allTags = Array.from(new Set(pages.flatMap((p: any) => p.tags || [])));
 
   return (
@@ -84,7 +105,7 @@ export default function WikiSection() {
             <AnimatePresence>
               {filteredPages.map((page, i) => (
                 <motion.div
-                  key={page.id}
+                  key={page.id || page._id}
                   initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 40 }}
@@ -99,14 +120,18 @@ export default function WikiSection() {
                     <Badge className="ml-auto bg-cyan-700 text-white font-mono">v{page.version}</Badge>
                   </div>
                   <div className="text-cyan-100 mb-2 text-sm line-clamp-4">
-                    {(page.content || '').replace(/[#*\-]/g, '').slice(0, 200)}...
+                    {page._source === 'sanity' && Array.isArray(page.content)
+                      ? (PortableText
+                        ? <PortableText value={page.content} />
+                        : <pre className="whitespace-pre-wrap font-mono text-cyan-100">{JSON.stringify(page.content)}</pre>)
+                      : (page.content || '').replace(/[#*\-]/g, '').slice(0, 200) + '...'}
                   </div>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {(page.tags || []).map((tag: string) => (
                       <span key={tag} className="bg-cyan-800 text-cyan-100 px-2 py-1 rounded text-xs font-mono">{tag}</span>
                     ))}
                   </div>
-                  <span className="absolute right-4 bottom-4 text-xs text-cyan-400 font-mono">Updated: {page.updated_at?.slice(0, 10)}</span>
+                  <span className="absolute right-4 bottom-4 text-xs text-cyan-400 font-mono">Updated: {page.updatedAt?.slice(0, 10) || page.updated_at?.slice(0, 10)}</span>
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileHover={{ opacity: 1 }}
@@ -130,8 +155,11 @@ export default function WikiSection() {
             </DialogTitle>
           </DialogHeader>
           <div className="prose prose-invert max-w-none text-cyan-100 mt-4">
-            {/* <ReactMarkdown>{openPage?.content || ''}</ReactMarkdown> */}
-            <pre className="whitespace-pre-wrap font-mono text-cyan-100">{openPage?.content}</pre>
+            {openPage?._source === 'sanity' && Array.isArray(openPage?.content)
+              ? (PortableText
+                ? <PortableText value={openPage.content} />
+                : <pre className="whitespace-pre-wrap font-mono text-cyan-100">{JSON.stringify(openPage.content, null, 2)}</pre>)
+              : <pre className="whitespace-pre-wrap font-mono text-cyan-100">{openPage?.content}</pre>}
           </div>
         </DialogContent>
       </Dialog>
