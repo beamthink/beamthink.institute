@@ -5,17 +5,8 @@ import { Bell, X, Camera, Calendar, FileText, MessageSquare } from "lucide-react
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { createClient } from "@sanity/client"
 import { urlFor } from "@/lib/sanity"
 import { motion, AnimatePresence } from "framer-motion"
-
-// Create a read-only Sanity client
-const sanityClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  apiVersion: "2024-03-01",
-  useCdn: true,
-})
 
 interface Contribution {
   _id: string
@@ -50,25 +41,16 @@ export function NotificationCenter() {
   // Fetch contributions from Sanity
   const fetchContributions = async () => {
     try {
-      const query = `*[_type == "contribution" && approved == true] | order(submittedAt desc)[0...10] {
-        _id,
-        type,
-        title,
-        content,
-        contributorName,
-        submittedAt,
-        image,
-        caption,
-        timelineYear,
-        timelineCategory,
-        documentFile
-      }`
-      
-      const result = await sanityClient.fetch(query)
-      setContributions(result)
-      setLastChecked(new Date())
-    } catch (error) {
-      console.error("Error fetching contributions:", error)
+      const res = await fetch('/api/contributions');
+      const data = await res.json();
+      if (res.ok) {
+        setContributions(data);
+        setLastChecked(new Date());
+      } else {
+        console.error("API error:", data.error);
+      }
+    } catch (err) {
+      console.error("Error fetching contributions:", err);
     }
   }
 
@@ -81,17 +63,6 @@ export function NotificationCenter() {
   useEffect(() => {
     const interval = setInterval(fetchContributions, 30000)
     return () => clearInterval(interval)
-  }, [])
-
-  // Subscribe to real-time updates
-  useEffect(() => {
-    const subscription = sanityClient
-      .listen('*[_type == "contribution" && approved == true]')
-      .subscribe(() => {
-        fetchContributions()
-      })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   const formatTimeAgo = (date: string) => {

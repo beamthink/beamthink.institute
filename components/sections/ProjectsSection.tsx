@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog as UIDialog, DialogContent as UIDialogContent, DialogHeader as UIDialogHeader, DialogTitle as UIDialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Users, TrendingUp, Home, Briefcase, Heart, Wrench, Utensils, Construction, Landmark, GraduationCap, Trophy, Gavel, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -27,6 +27,9 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
   const [participants, setParticipants] = useState<any[]>([]);
   const [media, setMedia] = useState<any[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
+  const [publications, setPublications] = useState<any[]>([]);
+  const [publicationsLoading, setPublicationsLoading] = useState(false);
+  const [openPublication, setOpenPublication] = useState<any | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -82,6 +85,22 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
       });
   }, [selectedProject]);
 
+  // Fetch publications for the selected project
+  useEffect(() => {
+    if (!selectedProject) return;
+    setPublicationsLoading(true);
+    fetch(`/api/projects/${selectedProject.id}/publications`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setPublications(Array.isArray(data) ? data : data ? [data] : []);
+        setPublicationsLoading(false);
+      })
+      .catch(() => {
+        setPublications([]);
+        setPublicationsLoading(false);
+      });
+  }, [selectedProject]);
+
   // Helper: Find related wiki pages by tag match
   function getRelatedWikiPages(project: any) {
     if (!project?.tags || !wikiPages.length) return [];
@@ -129,8 +148,22 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-4 py-16">
-        <div className="container mx-auto max-w-7xl flex flex-col items-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-4 py-16 relative overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+          style={{ zIndex: 0 }}
+        >
+          <source src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/7661317-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+        </video>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-gray-900/70 to-black/80" style={{ zIndex: 1 }} />
+        {/* Content */}
+        <div className="container mx-auto max-w-7xl flex flex-col items-center relative" style={{ zIndex: 2 }}>
           <div className="flex flex-wrap gap-3 mb-8">
             <Badge
               className={`cursor-pointer px-4 py-2 text-cyan-200 border border-cyan-400 bg-black/60 hover:bg-cyan-800/40 transition-all ${!selectedCategory ? 'ring-2 ring-cyan-400' : ''}`}
@@ -204,18 +237,18 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
               })}
             </AnimatePresence>
           </div>
-          <Dialog open={!!selectedProject} onOpenChange={open => !open && setSelectedProject(null)}>
-            <DialogContent className="bg-gray-950 border-cyan-400/30 text-white shadow-2xl max-w-3xl">
-              <DialogHeader>
+          <UIDialog open={!!selectedProject} onOpenChange={open => !open && setSelectedProject(null)}>
+            <UIDialogContent className="bg-gray-950 border-cyan-400/30 text-white shadow-2xl max-w-3xl">
+              <UIDialogHeader>
                 <div className="flex items-center gap-4 mb-2">
-                  <DialogTitle className="text-3xl font-extrabold tracking-widest text-cyan-200 font-mono flex-1" style={{ fontFamily: 'Orbitron, monospace' }}>
+                  <UIDialogTitle className="text-3xl font-extrabold tracking-widest text-cyan-200 font-mono flex-1" style={{ fontFamily: 'Orbitron, monospace' }}>
                     {selectedProject?.title}
-                  </DialogTitle>
+                  </UIDialogTitle>
                   <Badge className="bg-cyan-700 text-white font-mono">v{selectedProject?.version || 1}</Badge>
                   <Button variant="outline" className="border-cyan-400 text-cyan-200">Support</Button>
                   <Button className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold">Buy Format</Button>
                 </div>
-              </DialogHeader>
+              </UIDialogHeader>
               <div className="mb-4 text-cyan-100 text-lg font-semibold">
                 {selectedProject?.summary || selectedProject?.description}
               </div>
@@ -223,7 +256,8 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
                 <TabsList className="mb-4">
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="participants">Participants</TabsTrigger>
-                  <TabsTrigger value="media">Media</TabsTrigger>
+                  <TabsTrigger value="assets">Assets</TabsTrigger>
+                  <TabsTrigger value="publications">Publications</TabsTrigger>
                   <TabsTrigger value="wiki">Wiki Links</TabsTrigger>
                 </TabsList>
                 <TabsContent value="details">
@@ -253,9 +287,9 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
                     ))}
                   </div>
                 </TabsContent>
-                <TabsContent value="media">
-                  {mediaLoading && <div className="text-cyan-400">Loading media...</div>}
-                  {!mediaLoading && media.length === 0 && <div className="text-cyan-400">No media found for this project.</div>}
+                <TabsContent value="assets">
+                  {mediaLoading && <div className="text-cyan-400">Loading assets...</div>}
+                  {!mediaLoading && media.length === 0 && <div className="text-cyan-400">No assets found for this project.</div>}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {media.map((item: any) => (
                       <Card key={item.id || item.file_url} className="bg-gray-900/80 border-cyan-800 p-4 flex flex-col gap-2">
@@ -265,6 +299,33 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
                       </Card>
                     ))}
                   </div>
+                </TabsContent>
+                <TabsContent value="publications">
+                  {publicationsLoading && <div className="text-cyan-400">Loading publications...</div>}
+                  {!publicationsLoading && publications.length === 0 && <div className="text-cyan-400">No publications yet – contribute?</div>}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {publications.map((pub: any) => (
+                      <Card key={pub.id} className="bg-gray-900/80 border-cyan-800 p-4 flex flex-col gap-2 cursor-pointer" onClick={() => setOpenPublication(pub)}>
+                        <div className="font-bold text-cyan-200 text-lg">{pub.title}</div>
+                        <div className="inline-block px-2 py-1 bg-cyan-700 text-white text-xs rounded font-mono mb-1">{pub.publication_type}</div>
+                        <div className="text-cyan-400 text-xs truncate" title={pub.authors}>{(pub.authors || '').length > 40 ? pub.authors.slice(0, 40) + '…' : pub.authors}</div>
+                      </Card>
+                    ))}
+                  </div>
+                  <UIDialog open={!!openPublication} onOpenChange={open => !open && setOpenPublication(null)}>
+                    <UIDialogContent className="bg-gray-950 border-cyan-400/30 text-white shadow-2xl max-w-lg">
+                      <UIDialogHeader>
+                        <UIDialogTitle className="text-2xl font-extrabold tracking-widest text-cyan-200 font-mono flex items-center gap-2">{openPublication?.title}</UIDialogTitle>
+                      </UIDialogHeader>
+                      <div className="mb-2 text-cyan-400 text-xs">{openPublication?.publication_type}</div>
+                      <div className="mb-2 text-cyan-300 text-xs">Authors: {openPublication?.authors}</div>
+                      <div className="mb-4 text-cyan-100 text-sm">{openPublication?.abstract}</div>
+                      <div className="mb-2 text-cyan-200 text-xs">Citation: {openPublication?.citation}</div>
+                      {openPublication?.file_url && (
+                        <a href={openPublication.file_url} target="_blank" rel="noopener noreferrer" className="text-cyan-300 underline">Download/View</a>
+                      )}
+                    </UIDialogContent>
+                  </UIDialog>
                 </TabsContent>
                 <TabsContent value="wiki">
                   <div className="flex flex-col gap-2">
@@ -278,8 +339,8 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
                   </div>
                 </TabsContent>
               </Tabs>
-            </DialogContent>
-          </Dialog>
+            </UIDialogContent>
+          </UIDialog>
         </div>
       </div>
     </TooltipProvider>

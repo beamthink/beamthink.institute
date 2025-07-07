@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@sanity/client"
 import { supabase } from "@/lib/supabase"
+import { sanityClient } from '@/lib/sanity';
 
 // Mock file storage - in production you'd use Vercel Blob, Supabase Storage, or similar
 const mockFileStorage = new Map<string, { url: string; name: string; type: string; size: number }>()
@@ -89,58 +90,27 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+const query = `*[_type == "contribution" && approved == true] 
+  | order(submittedAt desc)[0...10] {
+    _id,
+    type,
+    title,
+    content,
+    contributorName,
+    submittedAt,
+    image,
+    caption,
+    timelineYear,
+    timelineCategory,
+    documentFile
+}`;
+
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const advisorSlug = searchParams.get("advisorSlug")
-
-    if (!advisorSlug) {
-      return NextResponse.json({ error: "Missing advisorSlug parameter" }, { status: 400 })
-    }
-
-    console.log('Fetching advisor with slug:', advisorSlug)
-
-    // Get the advisor's Sanity ID from Supabase
-    const { data: advisor } = await supabase
-      .from("ai_advisors")
-      .select("sanity_person_id")
-      .eq("slug", advisorSlug)
-      .single()
-
-    if (!advisor?.sanity_person_id) {
-      console.log('No advisor found for slug:', advisorSlug)
-      return NextResponse.json({ error: "Advisor not found" }, { status: 404 })
-    }
-
-    console.log('Found advisor with Sanity ID:', advisor.sanity_person_id)
-
-    // Fetch contributions from Sanity
-    const query = `*[_type == "person" && _id == $personId][0]{
-      "contributions": contributions[]->{
-        _id,
-        _type,
-        type,
-        title,
-        content,
-        contributorName,
-        submittedAt,
-        timelineYear,
-        timelineCategory,
-        image,
-        caption,
-        documentFile,
-        approved
-      }
-    }`
-
-    const result = await sanityClient.fetch(query, { personId: advisor.sanity_person_id })
-    const contributions = (result?.contributions || [])
-      .filter((contribution: { _id?: string; _type?: string } | null) => 
-        contribution && contribution._id && contribution._type === 'contribution'
-      )
-    return NextResponse.json({ contributions })
-  } catch (error) {
-    console.error("Error fetching contributions:", error)
-    return NextResponse.json({ error: "Failed to fetch contributions" }, { status: 500 })
+    const data = await sanityClient.fetch(query);
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error("Sanity fetch failed:", error?.message || error);
+    return NextResponse.json({ error: "Failed to fetch contributions" }, { status: 500 });
   }
 }
