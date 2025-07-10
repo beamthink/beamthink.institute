@@ -150,16 +150,18 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center px-4 py-16 relative overflow-hidden">
         {/* Video Background */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-          style={{ zIndex: 0 }}
-        >
-          <source src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/7661317-uhd_3840_2160_25fps.mp4" type="video/mp4" />
-        </video>
+        {false && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+            style={{ zIndex: 0 }}
+          >
+            <source src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/7661317-uhd_3840_2160_25fps.mp4" type="video/mp4" />
+          </video>
+        )}
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-gray-900/70 to-black/80" style={{ zIndex: 1 }} />
         {/* Content */}
@@ -239,6 +241,15 @@ export default function ProjectsSection({ index }: ProjectsSectionProps) {
           </div>
           <UIDialog open={!!selectedProject} onOpenChange={open => !open && setSelectedProject(null)}>
             <UIDialogContent className="bg-gray-950 border-cyan-400/30 text-white shadow-2xl max-w-3xl">
+              {/* Section video now inside modal */}
+              <video
+                className="w-full h-40 object-cover rounded mb-4"
+                src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/7661317-uhd_3840_2160_25fps.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
               <UIDialogHeader>
                 <div className="flex items-center gap-4 mb-2">
                   <UIDialogTitle className="text-3xl font-extrabold tracking-widest text-cyan-200 font-mono flex-1" style={{ fontFamily: 'Orbitron, monospace' }}>

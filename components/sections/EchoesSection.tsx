@@ -96,14 +96,16 @@ export default function EchoesSection() {
   return (
     <section id="echoes" className="py-24 px-4 min-h-screen flex flex-col items-center bg-gradient-to-br from-black via-gray-900 to-black relative overflow-hidden">
       {/* Background video */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-        src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/15940565-hd_1920_1080_60fps.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
+      {false && (
+        <video
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/15940565-hd_1920_1080_60fps.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      )}
       {/* Gradient overlay (existing gradient via Tailwind remains) */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-90 z-10 pointer-events-none" />
       {/* Content */}

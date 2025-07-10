@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
-  if (!supabaseAdmin) {
-    console.error("❌ Supabase admin client not available");
-    return NextResponse.json({ error: 'Supabase admin client not available.' }, { status: 500 });
-  }
-
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('jobs')
       .select('*')
       .eq('type', 'public') // or use .ilike('type', 'public') to be safe

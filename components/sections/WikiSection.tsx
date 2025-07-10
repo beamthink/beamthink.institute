@@ -61,14 +61,16 @@ export default function WikiSection() {
   return (
     <section id="wiki" className="py-24 px-4 bg-gradient-to-br from-black via-gray-900 to-black min-h-screen flex flex-col items-center relative overflow-hidden">
       {/* Background video */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-        src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/6549653-uhd_3840_2160_25fps.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
+      {false && (
+        <video
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/6549653-uhd_3840_2160_25fps.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+      )}
       {/* Gradient overlay (existing gradient via Tailwind remains) */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-90 z-10 pointer-events-none" />
       {/* Content */}
@@ -158,6 +160,15 @@ export default function WikiSection() {
         )}
         <Dialog open={!!openPage} onOpenChange={open => !open && setOpenPage(null)}>
           <DialogContent className="bg-gray-950 border-cyan-400/30 text-white shadow-2xl max-w-2xl">
+            {/* Section video now inside modal */}
+            <video
+              className="w-full h-40 object-cover rounded mb-4"
+              src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/site-static-media/projectssection/6549653-uhd_3840_2160_25fps.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
             <DialogHeader>
               <DialogTitle className="text-2xl font-extrabold tracking-widest text-cyan-200 font-mono flex items-center gap-2" style={{ fontFamily: 'Orbitron, monospace' }}>
                 <BookOpen className="h-7 w-7 text-cyan-300" />
