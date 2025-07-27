@@ -73,7 +73,7 @@ export default function Hero({ index }: HeroProps) {
                   {[1, 2, 3, 4, 5].map((i) => (
                     <motion.img 
                       key={i}
-                      src="/placeholder-logo.png" 
+                      src="https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero//pexels-mikhail-nilov-9301830.jpg" 
                       alt={`Partner ${i}`} 
                       className="h-12 opacity-60 hover:opacity-100 transition-opacity"
                       whileHover={{ scale: 1.1 }}
