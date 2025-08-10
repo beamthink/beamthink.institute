@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import { Toaster } from "sonner"
 import "./globals.css"
 import { NotificationCenter } from "@/components/notification-center"
+import ScreenSaver from "@/components/ScreenSaver"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-[#181818]`} suppressHydrationWarning={true}>
         <main className="min-h-screen">
           {children}
+          <ScreenSaver />
           <Toaster
             position="top-right"
             expand={false}

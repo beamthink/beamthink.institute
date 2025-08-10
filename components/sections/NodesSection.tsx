@@ -304,7 +304,8 @@ export default function NodesSection() {
         setTotalRevenue(totalRev);
         
         // 4. Get revenue goal for this node (default to $50,000 if not set)
-        const goal = 50000; // TODO: Replace with actual node.revenue_goal when available
+        // TODO: Replace with actual node.revenue_goal when backend provides per-node goals
+        const goal = 50000;
         setRevenueGoal(goal);
 
         // 5. Calculate productivity percentage
