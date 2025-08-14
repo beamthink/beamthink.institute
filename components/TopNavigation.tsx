@@ -48,7 +48,9 @@ export default function TopNavigation() {
               Participants
             </button>
             <a
-              href="#"
+              href="https://hood.beamthinktank.space"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-white/80 hover:text-white transition-colors"
             >
               Hood
