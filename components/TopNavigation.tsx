@@ -61,6 +61,12 @@ export default function TopNavigation() {
             >
               Support
             </a>
+            <a
+              href="/admin"
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              Admin
+            </a>
           </nav>
         </div>
       </motion.header>
