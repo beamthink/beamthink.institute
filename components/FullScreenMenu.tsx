@@ -105,7 +105,7 @@ export default function FullScreenMenu({ isOpen, onClose, initialContext }: Full
                     <button className={`text-black/70 hover:text-black transition-colors ${context === "participants" ? "font-semibold" : ""}`} onClick={() => setContext("participants")}>
                       Participants
                     </button>
-                    <a href="#" className="text-black/70 hover:text-black transition-colors">
+                    <a href="https://hood.beamthinktank.space" target="_blank" rel="noopener noreferrer" className="text-black/70 hover:text-black transition-colors">
                       Hood
                     </a>
                     <a href="#" className="text-black/70 hover:text-black transition-colors">
@@ -138,11 +138,10 @@ export default function FullScreenMenu({ isOpen, onClose, initialContext }: Full
                     >
                       <div className="flex items-end justify-between border-b border-black/10 pb-2">
                         <div className="w-full">
-                          <div className={`text-[12vw] leading-none font-bold tracking-tight md:text-[9rem] lg:text-[10rem] transition-transform group-hover:translate-x-4 md:group-hover:translate-x-6 ${cashSans.className}`}>
+                          <div className={`text-[10vw] leading-none font-bold tracking-tight md:text-[7rem] lg:text-[8rem] transition-transform group-hover:translate-x-4 md:group-hover:translate-x-6 ${cashSans.className}`}>
                             {item.label}
                           </div>
                         </div>
-                        <div className="mb-6 hidden sm:block text-sm text-black/50">Tap to open</div>
                       </div>
                       {/* Mouse-following large preview */}
                       <div className="pointer-events-none absolute inset-0 overflow-visible">

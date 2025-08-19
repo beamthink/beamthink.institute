@@ -3,18 +3,17 @@
 import TopNavigation from '@/components/TopNavigation';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { ExternalLink, Play, Pause, Info, Search, Filter, X, ChevronRight } from 'lucide-react';
+import { ExternalLink, Info, Search, Filter, X, ChevronRight } from 'lucide-react';
 import { ngoSectors, type NGOCard, searchNGOs } from '@/lib/ngo-data';
 
 type SelectedNGO = NGOCard | null;
 
 function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSelect: (ngo: NGOCard) => void }) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCardClick = () => {
-    if (ngo.type === 'video') {
-      setIsPlaying(!isPlaying);
+    if (ngo.type === 'video' && ngo.website) {
+      window.open(ngo.website, '_blank');
     } else {
       onSelect(ngo);
     }
@@ -43,13 +42,27 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
       <div
         className={`
           relative overflow-hidden rounded-2xl p-6 h-48
-          bg-gradient-to-br ${ngo.color}
+          ${ngo.type === 'video' ? 'bg-black' : `bg-gradient-to-br ${ngo.color}`}
           shadow-lg hover:shadow-2xl
           transition-all duration-300 ease-out
           border border-white/10 hover:border-white/20
         `}
         onClick={handleCardClick}
       >
+        {/* Video Background for Video Type Cards */}
+        {ngo.type === 'video' && ngo.videoUrl && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            preload="metadata"
+          >
+            <source src={ngo.videoUrl} type="video/mp4" />
+          </video>
+        )}
+
         {/* Animated Background Elements */}
         {ngo.type === 'animated' && (
           <motion.div
@@ -64,22 +77,6 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
             }}
             className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl"
           />
-        )}
-
-        {/* Video Overlay */}
-        {ngo.type === 'video' && (
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <motion.div
-              animate={{ scale: isPlaying ? 0.8 : 1 }}
-              className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
-            >
-              {isPlaying ? (
-                <Pause className="w-8 h-8 text-white" />
-              ) : (
-                <Play className="w-8 h-8 text-white ml-1" />
-              )}
-            </motion.div>
-          </div>
         )}
 
         {/* Interactive Elements */}
@@ -98,8 +95,13 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
           </motion.div>
         )}
 
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col justify-between">
+        {/* Content - Hidden until hover */}
+        <motion.div 
+          className="relative z-10 h-full flex flex-col justify-between"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <div className="text-6xl mb-4">{ngo.icon}</div>
           
           <div>
@@ -110,25 +112,34 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
               {ngo.description}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Hover Overlay */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
-          className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl"
+          className="absolute inset-0 bg-black/80 flex items-center justify-center rounded-2xl"
         >
           <div className="text-center p-4">
+            <div className="text-8xl mb-6">{ngo.icon}</div>
             <h4 className="text-white font-bold text-lg mb-2">{ngo.name}</h4>
-            <p className="text-white/90 text-sm mb-4">{ngo.description}</p>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors">
-                Learn More
-              </button>
-              <button className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
-                Connect
-              </button>
-            </div>
+            <p className="text-white/90 text-sm mb-4 max-w-xs mx-auto">
+              {ngo.description}
+            </p>
+            {ngo.type === 'video' && ngo.website ? (
+              <div className="px-6 py-3 bg-white/20 text-white rounded-lg text-sm font-medium backdrop-blur-sm">
+                Click to Visit Website
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <button className="px-4 py-2 bg-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors">
+                  Learn More
+                </button>
+                <button className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                  Connect
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
@@ -143,6 +154,7 @@ function SectorSection({ title, ngos, sectorIndex, searchQuery }: {
   searchQuery: string;
 }) {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Filter NGOs based on search query
@@ -184,8 +196,8 @@ function SectorSection({ title, ngos, sectorIndex, searchQuery }: {
   const minGap = 8; // 2 * 4 (tailwind gap-2)
   const dynamicGap = baseGap - (baseGap - minGap) * scrollProgress;
 
-  // Calculate title opacity based on scroll progress
-  const titleOpacity = Math.max(0.3, scrollProgress);
+  // Calculate title opacity based on scroll progress and hover
+  const titleOpacity = Math.max(0.3, scrollProgress) * (isHovered ? 1 : 0);
   const titleScale = 0.8 + (0.2 * scrollProgress);
 
   return (
@@ -196,6 +208,8 @@ function SectorSection({ title, ngos, sectorIndex, searchQuery }: {
       transition={{ duration: 0.8, delay: sectorIndex * 0.2 }}
       viewport={{ once: false, amount: 0.1 }}
       className="mb-16"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
       <motion.h2 
         className="text-3xl font-bold text-white mb-8 text-center"

@@ -16,9 +16,11 @@ export interface NGOCard {
   status: 'Active Partner' | 'Strategic Partner' | 'Emerging Partner';
   website?: string;
   readyaimgoLink?: string;
+  videoUrl?: string;
 }
 
 export const ngoSectors = {
+  /*
   'Finance & Economic Systems': [
     {
       id: 'beam-fcu',
@@ -170,8 +172,9 @@ export const ngoSectors = {
       readyaimgoLink: 'https://readyaimgo.biz/beam-smart'
     }
   ],
-
+*/
   'Media, Culture & Arts': [
+    /*
     {
       id: 'beam-media',
       name: 'BEAM Media & Communications Network',
@@ -185,7 +188,24 @@ export const ngoSectors = {
       status: 'Active Partner' as const,
       website: 'https://beammedia.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-media'
+    },*/
+    {
+      id: "beam-band",
+      name: "BEAM Band",
+      description:
+        "A city-based music NGO uniting local bands for fundraising concerts and community projects. Each node builds toward owning land and a rehearsal/performance building for music education, shows, and cultural development.",
+      icon: "🎸",
+      color: "from-red-500 to-pink-500",
+      type: "video" as const,
+      sector: "Media, Culture & Arts",
+      focus: ["Community", "Concerts", "Education", "Fundraising"],
+      impact: { projects: 12, communities: 8, volunteers: 85, funding: '$2.5M' },
+      status: "Active Partner" as const,
+      website: "https://band.beamthinktank.space",
+      readyaimgoLink: "https://readyaimgo.com/projects/beam-band",
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/3345545-hd_1920_1080_25fps.mp4"
     },
+    /*
     {
       id: 'beam-heritage',
       name: 'BEAM Cultural Heritage Foundation',
@@ -213,9 +233,9 @@ export const ngoSectors = {
       status: 'Strategic Partner' as const,
       website: 'https://beamheritage.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-heritage'
-    }
+    }*/
   ],
-
+  /*
   'Environmental Stewardship': [
     {
       id: 'beam-environment',
@@ -245,7 +265,7 @@ export const ngoSectors = {
       website: 'https://beamocean.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-ocean'
     }
-  ]
+  ]*/
 };
 
 // Helper functions
