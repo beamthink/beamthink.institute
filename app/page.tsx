@@ -540,21 +540,6 @@ export default function HomeGridPage() {
         </div>
       </div>
 
-      {/* Floating Action Button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1, type: "spring" }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-8 right-8 z-40 w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-2xl flex items-center justify-center text-white hover:shadow-orange-500/25 transition-all duration-300"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-      </motion.button>
-
       {/* Enhanced Background Animation with Parallax */}
       <motion.div
         className="fixed inset-0 pointer-events-none"

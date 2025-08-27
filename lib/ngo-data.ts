@@ -20,7 +20,6 @@ export interface NGOCard {
 }
 
 export const ngoSectors = {
-  /*
   'Finance & Economic Systems': [
     {
       id: 'beam-fcu',
@@ -33,9 +32,11 @@ export const ngoSectors = {
       focus: ['Banking', 'Loans', 'Investment', 'Community Finance'],
       impact: { projects: 15, communities: 12, volunteers: 120, funding: '$15M' },
       status: 'Active Partner' as const,
-      website: 'https://beamfcu.org',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-fcu'
+      website: 'https://www.beamfcu.com/',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-fcu',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/5849608-hd_1920_1080_30fps.mp4"
     },
+    /*
     {
       id: 'beam-coop',
       name: 'BEAM Cooperative Development Network',
@@ -47,7 +48,7 @@ export const ngoSectors = {
       focus: ['Cooperative Models', 'Economic Democracy', 'Local Business Development'],
       impact: { projects: 12, communities: 9, volunteers: 85, funding: '$4.5M' },
       status: 'Strategic Partner' as const,
-      website: 'https://beamcoop.org',
+      website: 'https://coop.beamthinktank.space',
       readyaimgoLink: 'https://readyaimgo.biz/beam-coop'
     },
     {
@@ -61,9 +62,10 @@ export const ngoSectors = {
       focus: ['Trade Policy', 'Commerce Facilitation', 'Market Access'],
       impact: { projects: 8, communities: 7, volunteers: 60, funding: '$6.2M' },
       status: 'Emerging Partner' as const,
-      website: 'https://beamtrade.org',
+      website: 'https://www.beamtrade.org/',
       readyaimgoLink: 'https://readyaimgo.biz/beam-trade'
     }
+    */
   ],
 
   'Healthcare & Life Sciences': [
@@ -78,9 +80,11 @@ export const ngoSectors = {
       focus: ['Healthcare Access', 'Preventive Care', 'Medical Research'],
       impact: { projects: 20, communities: 14, volunteers: 200, funding: '$12M' },
       status: 'Active Partner' as const,
-      website: 'https://beamhealth.org',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-health'
+      website: 'https://health.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-health',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/5453565-uhd_3840_2160_25fps.mp4"
     },
+    /*
     {
       id: 'beam-pharma',
       name: 'BEAM Pharmaceuticals & Biotech Network',
@@ -92,9 +96,10 @@ export const ngoSectors = {
       focus: ['Pharmaceuticals', 'Biotechnology', 'Clinical Trials'],
       impact: { projects: 9, communities: 6, volunteers: 55, funding: '$8M' },
       status: 'Strategic Partner' as const,
-      website: 'https://beampharma.org',
+      website: 'https://pharma.beamthinktank.space',
       readyaimgoLink: 'https://readyaimgo.biz/beam-pharma'
     }
+    */
   ],
 
   'Education, Research & Innovation': [
@@ -109,9 +114,39 @@ export const ngoSectors = {
       focus: ['Education', 'Skill Development', 'Community Learning'],
       impact: { projects: 18, communities: 15, volunteers: 150, funding: '$9M' },
       status: 'Active Partner' as const,
-      website: 'https://beameducation.org',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-education'
+      website: 'https://education.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-education',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/8460056-hd_1920_1080_24fps.mp4"
     },
+    {
+      id: 'beam-skills',
+      name: 'BEAM Skills Exchange',
+      description: 'Connects students and business professionals to teach practical courses and workshops at local libraries, creating a community-driven skill-sharing network.',
+      icon: '🔄',
+      color: 'from-teal-500 to-cyan-500',
+      type: 'interactive' as const,
+      sector: 'Education, Research & Innovation',
+      focus: ['Skill Sharing', 'Professional Development', 'Library Partnerships', 'Community Education'],
+      impact: { projects: 22, communities: 18, volunteers: 200, funding: '$6.5M' },
+      status: 'Active Partner' as const,
+      website: 'https://skills.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-skills'
+    },
+    {
+      id: 'beam-library',
+      name: 'BEAM 24/7 Library & Knowledge Hub',
+      description: 'State-of-the-art 24-hour library providing round-the-clock access to knowledge, technology, and learning resources for BEAM communities.',
+      icon: '📚',
+      color: 'from-amber-500 to-orange-500',
+      type: 'interactive' as const,
+      sector: 'Education, Research & Innovation',
+      focus: ['24/7 Access', 'Digital Resources', 'Learning Technology', 'Community Space'],
+      impact: { projects: 25, communities: 20, volunteers: 180, funding: '$12M' },
+      status: 'Active Partner' as const,
+      website: 'https://library.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-library'
+    },
+    /*
     {
       id: 'beam-research',
       name: 'BEAM Research & Development Network',
@@ -123,11 +158,13 @@ export const ngoSectors = {
       focus: ['Research', 'Innovation', 'Technology Development'],
       impact: { projects: 14, communities: 10, volunteers: 90, funding: '$7.5M' },
       status: 'Strategic Partner' as const,
-      website: 'https://beamresearch.org',
+      website: 'https://research.beamthinktank.space',
       readyaimgoLink: 'https://readyaimgo.biz/beam-research'
     }
+    */
   ],
 
+  /*
   'Infrastructure & Energy': [
     {
       id: 'beam-infrastructure',
@@ -172,7 +209,8 @@ export const ngoSectors = {
       readyaimgoLink: 'https://readyaimgo.biz/beam-smart'
     }
   ],
-*/
+  */
+
   'Media, Culture & Arts': [
     /*
     {
@@ -188,7 +226,8 @@ export const ngoSectors = {
       status: 'Active Partner' as const,
       website: 'https://beammedia.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-media'
-    },*/
+    },
+    */
     {
       id: "beam-band",
       name: "BEAM Band",
@@ -220,21 +259,41 @@ export const ngoSectors = {
       website: 'https://beamheritage.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-heritage'
     },
+    */
     {
       id: 'beam-orchestra',
       name: 'BEAM Orchestra',
-      description: 'Professional orcehstra and training program',
-      icon: '🎨',
+      description: 'Professional orchestra and training program',
+      icon: '🎼',
       color: 'from-pink-500 to-rose-500',
       type: 'video' as const,
       sector: 'Media, Culture & Arts',
-      focus: ['Cultural Preservation', 'Art Programs', 'Heritage Projects'],
+      focus: ['Classical Music', 'Orchestral Training', 'Cultural Education'],
       impact: { projects: 6, communities: 4, volunteers: 35, funding: '$2.8M' },
       status: 'Strategic Partner' as const,
-      website: 'https://beamheritage.org',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-heritage'
-    }*/
+      website: 'https://orchestra.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-orchestra',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/7095074-uhd_4096_2160_25fps.mp4"
+    }
   ],
+
+  'Legal & Governance': [
+    {
+      id: 'beam-legal',
+      name: 'BEAM Legal & Justice Institute',
+      description: 'Provides legal services, advocacy, and policy development for BEAM communities and initiatives.',
+      icon: '⚖️',
+      color: 'from-slate-600 to-gray-700',
+      type: 'animated' as const,
+      sector: 'Legal & Governance',
+      focus: ['Legal Services', 'Policy Advocacy', 'Community Justice', 'Governance'],
+      impact: { projects: 8, communities: 6, volunteers: 45, funding: '$3.2M' },
+      status: 'Strategic Partner' as const,
+      website: 'https://legal.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-legal'
+    }
+  ],
+
   /*
   'Environmental Stewardship': [
     {
@@ -265,7 +324,8 @@ export const ngoSectors = {
       website: 'https://beamocean.org',
       readyaimgoLink: 'https://readyaimgo.biz/beam-ocean'
     }
-  ]*/
+  ]
+  */
 };
 
 // Helper functions

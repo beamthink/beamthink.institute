@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { urlFor } from "@/lib/sanity"
 import { motion, AnimatePresence } from "framer-motion"
+import { useNotifications } from "./NotificationContext"
 
 interface Contribution {
   _id: string
@@ -33,9 +34,8 @@ interface Contribution {
 }
 
 export function NotificationCenter() {
-  const [isOpen, setIsOpen] = useState(false)
+  const { isNotificationOpen, closeNotifications, unreadCount, setUnreadCount } = useNotifications()
   const [contributions, setContributions] = useState<Contribution[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [lastChecked, setLastChecked] = useState<Date>(new Date())
 
   // Fetch contributions from Sanity
@@ -46,6 +46,11 @@ export function NotificationCenter() {
       if (res.ok) {
         setContributions(data);
         setLastChecked(new Date());
+        // Update unread count based on new contributions
+        const newCount = data.filter((c: Contribution) => 
+          new Date(c.submittedAt) > lastChecked
+        ).length;
+        setUnreadCount(newCount);
       } else {
         console.error("API error:", data.error);
       }
@@ -93,103 +98,103 @@ export function NotificationCenter() {
 
   return (
     <>
-      {/* Notification Trigger Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className="relative h-12 w-12 rounded-full bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 hover:bg-gray-800/95 shadow-lg transition-all duration-200 hover:scale-105"
-          size="icon"
-        >
-          <Bell className="h-5 w-5 text-white" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-500 p-0 text-xs text-white flex items-center justify-center">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </div>
-
       {/* Notification Panel */}
       <AnimatePresence>
-        {isOpen && (
+        {isNotificationOpen && (
           <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.2 }}
-              className="fixed bottom-20 right-6 z-40 w-80 bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl"
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-                <h3 className="text-sm font-medium text-white">Recent Activity</h3>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-6 w-6">
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-
-              {/* Content */}
-              <div className="max-h-80 overflow-y-auto">
-                {contributions.length === 0 ? (
-                  <div className="p-4 text-center">
-                    <p className="text-sm text-gray-400">No recent activity</p>
-                  </div>
-                ) : (
-                  <div className="p-2 space-y-2">
-                    {contributions.map((contribution) => (
-                      <motion.div
-                        key={contribution._id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="p-3 rounded-lg bg-gray-800/30 hover:bg-gray-800/50 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                            {getContributionIcon(contribution.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-white truncate">
-                                  {contribution.title || `${contribution.type} contribution`}
-                                </p>
-                                <p className="text-xs text-gray-400 mt-1 line-clamp-2">
-                                  {contribution.content || contribution.caption}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <Avatar className="h-5 w-5">
-                                <AvatarFallback className="text-[10px] bg-gray-700">
-                                  {contribution.contributorName
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .substring(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs text-gray-500">{contribution.contributorName}</span>
-                              <span className="text-xs text-gray-500">•</span>
-                              <span className="text-xs text-gray-500">{formatTimeAgo(contribution.submittedAt)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
-              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={closeNotifications}
             />
+            <motion.div
+              initial={{ opacity: 0, x: 300, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 300, scale: 0.95 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed top-0 right-0 h-full w-96 max-w-[90vw] bg-gray-900/95 backdrop-blur-xl border-l border-gray-700/50 shadow-2xl z-50 overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <Bell className="h-6 w-6 text-orange-400" />
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">Notifications</h2>
+                    <p className="text-sm text-gray-400">
+                      {contributions.length} contributions
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={closeNotifications}
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {contributions.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Bell className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400">No contributions yet</p>
+                    <p className="text-sm text-gray-500">Check back later for updates</p>
+                  </div>
+                ) : (
+                  contributions.map((contribution) => (
+                    <motion.div
+                      key={contribution._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className="bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                              {contribution.contributorName.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            {getContributionIcon(contribution.type)}
+                            <span className="text-sm font-medium text-white">
+                              {contribution.contributorName}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {formatTimeAgo(contribution.submittedAt)}
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-medium text-white mb-1">
+                            {contribution.title}
+                          </h4>
+                          {contribution.content && (
+                            <p className="text-sm text-gray-300 line-clamp-2">
+                              {contribution.content}
+                            </p>
+                          )}
+                          {contribution.image && (
+                            <div className="mt-3">
+                              <img
+                                src={urlFor(contribution.image).width(200).height(150).url()}
+                                alt={contribution.caption || "Contribution image"}
+                                className="w-full h-24 object-cover rounded-md"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>

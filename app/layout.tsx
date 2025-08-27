@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "sonner"
 import "./globals.css"
+import { CombinedActionButton } from "@/components/CombinedActionButton"
+import { NotificationProvider } from "@/components/NotificationContext"
 import { NotificationCenter } from "@/components/notification-center"
 import ScreenSaver from "@/components/ScreenSaver"
 
@@ -22,28 +24,31 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning={true}>
       <body className={`${inter.className} bg-[#181818]`} suppressHydrationWarning={true}>
-        <main className="min-h-screen">
-          {children}
-          <ScreenSaver />
-          <Toaster
-            position="top-right"
-            expand={false}
-            richColors
-            closeButton
-            toastOptions={{
-              style: {
-                background: "rgba(17, 24, 39, 0.8)",
-                backdropFilter: "blur(16px)",
-                border: "1px solid rgba(75, 85, 99, 0.3)",
-                color: "white",
-                borderRadius: "12px",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-              },
-              className: "glass-toast",
-            }}
-          />
-          <NotificationCenter />
-        </main>
+        <NotificationProvider>
+          <main className="min-h-screen">
+            {children}
+            <ScreenSaver />
+            <Toaster
+              position="top-right"
+              expand={false}
+              richColors
+              closeButton
+              toastOptions={{
+                style: {
+                  background: "rgba(17, 24, 39, 0.8)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(75, 85, 99, 0.3)",
+                  color: "white",
+                  borderRadius: "12px",
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                },
+                className: "glass-toast",
+              }}
+            />
+            <NotificationCenter />
+            <CombinedActionButton />
+          </main>
+        </NotificationProvider>
       </body>
     </html>
   )
