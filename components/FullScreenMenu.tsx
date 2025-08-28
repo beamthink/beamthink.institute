@@ -172,7 +172,7 @@ export default function FullScreenMenu({ isOpen, onClose, initialContext }: Full
                   <a className="hover:text-black transition-colors" href="#">Logo download</a>
                   <a className="hover:text-black transition-colors" href="#">Type download</a>
                   <a className="hover:text-black transition-colors" href="#">Press kit</a>
-                  <a className="hover:text-black transition-colors" href="#">Work at BEAM</a>
+                  <a className="hover:text-black transition-colors" href="/work-at-beam">Work at BEAM</a>
                 </div>
               </footer>
             </div>
