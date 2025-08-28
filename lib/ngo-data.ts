@@ -27,14 +27,14 @@ export const ngoSectors = {
       description: 'Financial services cooperative providing banking, lending, and investment solutions for BEAM communities.',
       icon: '🏦',
       color: 'from-blue-500 to-indigo-500',
-      type: 'animated' as const,
+      type: 'video' as const,
       sector: 'Finance & Economic Systems',
       focus: ['Banking', 'Loans', 'Investment', 'Community Finance'],
       impact: { projects: 15, communities: 12, volunteers: 120, funding: '$15M' },
       status: 'Active Partner' as const,
       website: 'https://www.beamfcu.com/',
       readyaimgoLink: 'https://readyaimgo.biz/beam-fcu',
-      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/5849608-hd_1920_1080_30fps.mp4"
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/5849608-hd_1920_1080_30fps.mp4",
     },
     /*
     {
@@ -109,7 +109,7 @@ export const ngoSectors = {
       description: 'Provides educational programs and skill development for BEAM communities.',
       icon: '🎓',
       color: 'from-indigo-500 to-purple-500',
-      type: 'animated' as const,
+      type: 'video' as const,
       sector: 'Education, Research & Innovation',
       focus: ['Education', 'Skill Development', 'Community Learning'],
       impact: { projects: 18, communities: 15, volunteers: 150, funding: '$9M' },
@@ -124,13 +124,14 @@ export const ngoSectors = {
       description: 'Connects students and business professionals to teach practical courses and workshops at local libraries, creating a community-driven skill-sharing network.',
       icon: '🔄',
       color: 'from-teal-500 to-cyan-500',
-      type: 'interactive' as const,
+      type: 'video' as const,
       sector: 'Education, Research & Innovation',
       focus: ['Skill Sharing', 'Professional Development', 'Library Partnerships', 'Community Education'],
       impact: { projects: 22, communities: 18, volunteers: 200, funding: '$6.5M' },
       status: 'Active Partner' as const,
       website: 'https://skills.beamthinktank.space',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-skills'
+      readyaimgoLink: 'https://readyaimgo.biz/beam-skills',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/7999445-uhd_3840_2160_25fps.mp4"
     },
     {
       id: 'beam-library',
@@ -138,13 +139,14 @@ export const ngoSectors = {
       description: 'State-of-the-art 24-hour library providing round-the-clock access to knowledge, technology, and learning resources for BEAM communities.',
       icon: '📚',
       color: 'from-amber-500 to-orange-500',
-      type: 'interactive' as const,
+      type: 'video' as const,
       sector: 'Education, Research & Innovation',
       focus: ['24/7 Access', 'Digital Resources', 'Learning Technology', 'Community Space'],
       impact: { projects: 25, communities: 20, volunteers: 180, funding: '$12M' },
       status: 'Active Partner' as const,
       website: 'https://library.beamthinktank.space',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-library'
+      readyaimgoLink: 'https://readyaimgo.biz/beam-library',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/6549542-uhd_3840_2160_25fps.mp4"
     },
     /*
     {
@@ -284,13 +286,14 @@ export const ngoSectors = {
       description: 'Provides legal services, advocacy, and policy development for BEAM communities and initiatives.',
       icon: '⚖️',
       color: 'from-slate-600 to-gray-700',
-      type: 'animated' as const,
+      type: 'video' as const,
       sector: 'Legal & Governance',
       focus: ['Legal Services', 'Policy Advocacy', 'Community Justice', 'Governance'],
       impact: { projects: 8, communities: 6, volunteers: 45, funding: '$3.2M' },
       status: 'Strategic Partner' as const,
-      website: 'https://legal.beamthinktank.space',
-      readyaimgoLink: 'https://readyaimgo.biz/beam-legal'
+      website: 'https://law.beamthinktank.space',
+      readyaimgoLink: 'https://readyaimgo.biz/beam-legal',
+      videoUrl: "https://gfqhzuqckfxtzqawdcso.supabase.co/storage/v1/object/public/hero/6100011-uhd_4096_2160_30fps.mp4"
     }
   ],
 

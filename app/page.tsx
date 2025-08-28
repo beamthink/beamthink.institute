@@ -5,6 +5,8 @@ import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motio
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { ExternalLink, Info, Search, Filter, X, ChevronRight } from 'lucide-react';
 import { ngoSectors, type NGOCard, searchNGOs } from '@/lib/ngo-data';
+import { RoleSelector } from '@/components/RoleSelector';
+import { InteractiveJourney } from '@/components/InteractiveJourney';
 
 type SelectedNGO = NGOCard | null;
 
@@ -12,7 +14,7 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
   const [isHovered, setIsHovered] = useState(false);
 
   const handleCardClick = () => {
-    if (ngo.type === 'video' && ngo.website) {
+    if (ngo.website) {
       window.open(ngo.website, '_blank');
     } else {
       onSelect(ngo);
@@ -114,34 +116,12 @@ function NGOCard({ ngo, index, onSelect }: { ngo: NGOCard; index: number; onSele
           </div>
         </motion.div>
 
-        {/* Hover Overlay */}
+        {/* Hover Overlay - Clean overlay with no text or icons */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
-          className="absolute inset-0 bg-black/80 flex items-center justify-center rounded-2xl"
-        >
-          <div className="text-center p-4">
-            <div className="text-8xl mb-6">{ngo.icon}</div>
-            <h4 className="text-white font-bold text-lg mb-2">{ngo.name}</h4>
-            <p className="text-white/90 text-sm mb-4 max-w-xs mx-auto">
-              {ngo.description}
-            </p>
-            {ngo.type === 'video' && ngo.website ? (
-              <div className="px-6 py-3 bg-white/20 text-white rounded-lg text-sm font-medium backdrop-blur-sm">
-                Click to Visit Website
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <button className="px-4 py-2 bg-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/30 transition-colors">
-                  Learn More
-                </button>
-                <button className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
-                  Connect
-                </button>
-              </div>
-            )}
-          </div>
-        </motion.div>
+          className="absolute inset-0 bg-black/60 rounded-2xl"
+        />
       </div>
     </motion.div>
   );
@@ -225,8 +205,7 @@ function SectorSection({ title, ngos, sectorIndex, searchQuery }: {
       </motion.h2>
       
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        style={{ gap: `${dynamicGap}px` }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
       >
         {filteredNGOs.map((ngo, index) => (
           <NGOCard 
@@ -438,6 +417,8 @@ export default function HomeGridPage() {
   const [selectedSector, setSelectedSector] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const [selectedRole, setSelectedRole] = useState<'participant' | 'community' | 'admin' | 'donor' | null>(null);
+  const [isJourneyVisible, setIsJourneyVisible] = useState(false);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const x = useSpring(mx, { stiffness: 80, damping: 20, mass: 0.3 });
@@ -450,6 +431,16 @@ export default function HomeGridPage() {
     mx.set(nx);
     my.set(ny);
   }, [mx, my]);
+
+  const handleRoleSelect = (role: 'participant' | 'community' | 'admin' | 'donor') => {
+    setSelectedRole(role);
+    setIsJourneyVisible(true);
+  };
+
+  const handleJourneyClose = () => {
+    setIsJourneyVisible(false);
+    setSelectedRole(null);
+  };
 
   // Enhanced scroll tracking for parallax effects
   useEffect(() => {
@@ -688,6 +679,17 @@ export default function HomeGridPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Journey System */}
+      <RoleSelector onRoleSelect={handleRoleSelect} />
+      
+      {selectedRole && (
+        <InteractiveJourney
+          isVisible={isJourneyVisible}
+          role={selectedRole}
+          onClose={handleJourneyClose}
+        />
+      )}
     </div>
   );
 }
